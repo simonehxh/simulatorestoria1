@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Storia 2026">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<title>Simulatore date - Storia 2026</title>
+<style>
+:root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#f59e0b;--good:#22c55e;--bad:#ef4444;--soft:#1e293b;--border:#334155;}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top,#1e293b,#0f172a 50%,#020617);color:var(--text);min-height:100vh;}
+.container{max-width:1080px;margin:0 auto;padding:24px} header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;}
+h1{font-size:clamp(1.6rem,3vw,2.55rem);margin:0;line-height:1.08}.subtitle{color:var(--muted);margin:8px 0 0;font-size:1rem}.badge{border:1px solid var(--border);background:rgba(245,158,11,.14);color:#fde68a;padding:8px 12px;border-radius:999px;font-weight:800;white-space:nowrap}.card{background:rgba(17,24,39,.94);border:1px solid var(--border);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:22px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.col6{grid-column:span 6}.col4{grid-column:span 4}.col12{grid-column:span 12}@media(max-width:780px){.col6,.col4{grid-column:span 12} header{display:block}.badge{display:inline-block;margin-top:12px}}
+label{display:block;color:#cbd5e1;font-weight:800;margin-bottom:8px}select,input[type=text]{width:100%;background:#0b1220;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:1rem}.small{font-size:.92rem;color:var(--muted);line-height:1.45}button{border:0;border-radius:13px;padding:12px 16px;font-weight:850;cursor:pointer;font-size:1rem;color:#451a03;background:var(--accent);transition:.15s transform,.15s opacity}button:hover{transform:translateY(-1px)}button.secondary{background:#243244;color:#e2e8f0;border:1px solid var(--border)}button.ghost{background:transparent;color:#fde68a;border:1px solid #92400e}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.progress-wrap{background:#0b1220;border:1px solid var(--border);border-radius:999px;height:14px;overflow:hidden}.progress{height:100%;background:linear-gradient(90deg,#f59e0b,#22c55e);width:0}.meta{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#cbd5e1;margin-bottom:12px}.qnum{color:#fed7aa;font-weight:850}.question{font-size:1.2rem;line-height:1.45;font-weight:850;margin:16px 0 18px;white-space:pre-line}.answers{display:grid;gap:10px}.answer{width:100%;text-align:left;background:#0b1220;color:#e5e7eb;border:1px solid var(--border);padding:14px 16px;border-radius:14px;font-weight:650;line-height:1.35}.answer.correct{border-color:rgba(34,197,94,.9);background:rgba(34,197,94,.18);color:#dcfce7}.answer.wrong{border-color:rgba(239,68,68,.9);background:rgba(239,68,68,.18);color:#fee2e2}.answer.disabled{opacity:.96}.resultBox{border-radius:14px;padding:14px;margin-top:14px;border:1px solid var(--border);background:#0b1220}.ok{border-color:rgba(34,197,94,.7);background:rgba(34,197,94,.12)}.ko{border-color:rgba(239,68,68,.7);background:rgba(239,68,68,.12)}.hide{display:none!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#0b1220;border:1px solid var(--border);color:#cbd5e1;font-size:.9rem;margin:4px 5px 4px 0}.reviewItem{border:1px solid var(--border);background:#0b1220;border-radius:14px;padding:14px;margin:10px 0}.reviewItem b{color:#fde68a}.stat{background:#0b1220;border:1px solid var(--border);border-radius:16px;padding:14px}.stat strong{font-size:1.4rem;color:#fff}.list{max-height:450px;overflow:auto;padding-right:6px}.kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;border:1px solid var(--border);padding:2px 6px;border-radius:6px;color:#fde68a}.footer{color:#64748b;font-size:.86rem;margin-top:18px}.switch{display:flex;align-items:center;gap:8px;margin-top:8px}.switch input{width:18px;height:18px}.searchCount{color:#fcd34d;font-weight:700;margin-top:8px}.dateTag{color:#fed7aa}
+
+/* Blocco domande */
+.block-card{margin-top:18px;padding:18px;border-radius:18px;background:rgba(30,41,59,.82);border:1px solid var(--border)}
+.block-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.block-title{display:flex;align-items:center;gap:9px;color:#cbd5e1;font-size:.95rem;font-weight:850;text-transform:uppercase;letter-spacing:.03em}.block-icon{color:var(--good);font-size:1.05rem}.block-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;color:#f8fafc}.toggle-control{position:relative;width:46px;height:26px;flex:0 0 auto}.toggle-control input{position:absolute;opacity:0;pointer-events:none}.toggle-track{position:absolute;inset:0;border-radius:999px;background:#475569;cursor:pointer;transition:.2s}.toggle-track:after{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.28);transition:.2s}.toggle-control input:checked + .toggle-track{background:var(--good)}.toggle-control input:checked + .toggle-track:after{transform:translateX(20px)}.block-help{margin:18px 0 14px;color:#e2e8f0;font-size:.9rem}.range-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.range-field label{margin-bottom:8px;color:#f8fafc}.stepper{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;min-height:48px;border:1px solid var(--border);border-radius:999px;background:#182235;overflow:hidden}.stepper button{height:100%;min-height:48px;padding:0;border-radius:0;background:transparent;color:var(--good);font-size:1.35rem}.stepper button:hover{transform:none;background:rgba(34,197,94,.08)}.stepper input[type=number]{width:100%;border:0;border-radius:0;background:transparent;color:#fff;text-align:center;font-size:1.05rem;font-weight:850;padding:10px 4px;-moz-appearance:textfield}.stepper input[type=number]::-webkit-outer-spin-button,.stepper input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}.range-max{margin-top:7px;color:#cbd5e1;font-size:.78rem}.block-summary{margin-top:12px;color:#86efac;font-size:.86rem;font-weight:750}.block-card.is-disabled .range-grid,.block-card.is-disabled .block-help,.block-card.is-disabled .block-summary{opacity:.45}.block-card.is-disabled .stepper{pointer-events:none}.block-card.is-disabled .stepper input{color:#94a3b8}
+@media(max-width:640px){.range-grid{grid-template-columns:1fr}.block-card{padding:16px}.block-toggle-row{align-items:flex-start}}
+
+
+/* Ottimizzazioni iPhone e modalità app */
+html{background:#0f172a;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100dvh;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+.container{padding-top:calc(24px + env(safe-area-inset-top));padding-right:calc(24px + env(safe-area-inset-right));padding-bottom:calc(24px + env(safe-area-inset-bottom));padding-left:calc(24px + env(safe-area-inset-left))}
+button,select,input{touch-action:manipulation}
+button,.answer{min-height:44px}
+select,input[type=text],input[type=number]{font-size:16px}
+.install-hint{display:none;position:relative;border:1px solid #475569;background:rgba(15,23,42,.96);border-radius:16px;padding:14px 44px 14px 14px;margin:0 0 16px;color:#e2e8f0;line-height:1.45;box-shadow:0 12px 35px rgba(0,0,0,.24)}
+.install-hint.show{display:block}.install-hint strong{color:#fde68a}.install-close{position:absolute;right:8px;top:8px;min-height:34px;width:34px;padding:0;border-radius:10px;background:#243244;color:#e2e8f0;border:1px solid var(--border)}
+.offline-pill{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#0b1220;color:#cbd5e1;font-size:.82rem;font-weight:750}
+.offline-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+@media(max-width:780px){.container{padding-top:calc(14px + env(safe-area-inset-top));padding-right:calc(14px + env(safe-area-inset-right));padding-bottom:calc(18px + env(safe-area-inset-bottom));padding-left:calc(14px + env(safe-area-inset-left))}.card{padding:17px;border-radius:17px}.question{font-size:1.08rem}.buttons button{flex:1 1 145px}.answers{gap:9px}.answer{padding:13px 14px}}
+@media(display-mode:standalone){.install-hint{display:none!important}body{user-select:none;-webkit-user-select:none}input,select,details,.reviewItem{user-select:text;-webkit-user-select:text}}
+
+
+.prep-card{margin-top:18px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(180deg,rgba(30,41,59,.88),rgba(15,23,42,.92));padding:18px 18px 16px}
+.prep-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.prep-title{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.08rem;color:#f8fafc}.prep-icon{color:var(--good);font-size:1.15rem}.prep-subtitle{color:var(--muted);font-size:.93rem;margin-top:4px;line-height:1.4}
+.prep-bar{display:flex;align-items:center;gap:2px;height:14px;border-radius:999px;overflow:hidden;background:#334155;margin:10px 0 18px}.prep-segment{display:block;height:100%}.prep-segment.le-sai{background:#84cc16}.prep-segment.da-ripetere{background:#fbbf24}.prep-segment.non-le-sai{background:#f87171}.prep-segment.non-risposte{background:#475569}
+.prep-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}.prep-option{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;border:1px solid transparent;background:rgba(11,18,32,.2);cursor:pointer;transition:.15s ease}.prep-option:hover{background:rgba(30,41,59,.65);border-color:#475569}.prep-option.is-active{background:rgba(51,65,85,.72);border-color:#64748b}.prep-option.is-master{grid-column:1 / -1}.prep-option input{width:18px;height:18px;margin:0}.prep-bullet{width:11px;height:11px;border-radius:50%;flex:0 0 11px;background:#94a3b8}.prep-bullet.le-sai{background:#84cc16}.prep-bullet.da-ripetere{background:#fbbf24}.prep-bullet.non-le-sai{background:#f87171}.prep-bullet.non-risposte{background:#64748b}.prep-name{font-weight:800;color:#f8fafc}.prep-count{margin-left:auto;font-weight:900;color:#fff}.prep-summary{margin-top:12px;color:#cbd5e1;font-size:.92rem;line-height:1.45}.prep-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}.prep-link-btn,.prep-outline-btn{border-radius:999px;padding:10px 14px;font-size:.95rem;font-weight:850}.prep-link-btn{background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.45)}.prep-link-btn:hover{background:rgba(127,29,29,.18);transform:none}.prep-outline-btn{background:transparent;color:#86efac;border:1px solid rgba(74,222,128,.6)}.prep-outline-btn:hover{background:rgba(20,83,45,.2);transform:none}
+.pill.level-le-sai{border-color:rgba(132,204,22,.45);color:#d9f99d}.pill.level-da-ripetere{border-color:rgba(251,191,36,.4);color:#fde68a}.pill.level-non-le-sai{border-color:rgba(248,113,113,.45);color:#fecaca}.pill.level-non-risposte{border-color:rgba(100,116,139,.5);color:#cbd5e1}
+@media(max-width:780px){.prep-options{grid-template-columns:1fr}.prep-option.is-master{grid-column:auto}.prep-actions button{flex:1 1 170px}}
+
+
+.quiz-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.quiz-nav button{min-width:130px}.quiz-nav button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.completion-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.completion-panel{width:min(620px,100%);border:1px solid #475569;border-radius:24px;background:linear-gradient(180deg,#1e293b,#0f172a);padding:34px;box-shadow:0 30px 100px rgba(0,0,0,.55);text-align:center}.completion-panel h2{margin:10px 0 8px;font-size:clamp(1.5rem,4vw,2.2rem)}.completion-panel p{color:#cbd5e1;line-height:1.55;margin:0 auto 22px;max-width:520px}.completion-icon{width:64px;height:64px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.55);color:#86efac;font-size:2rem;font-weight:900}.completion-actions{display:grid;gap:12px}.completion-actions button{width:100%;padding:14px 18px}
+@media(max-width:780px){.quiz-nav{display:grid;grid-template-columns:1fr 1fr}.quiz-nav .secondary:last-child{grid-column:1 / -1}.completion-panel{padding:24px 18px;border-radius:20px}.completion-overlay{padding:14px;padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:calc(14px + env(safe-area-inset-bottom))}}
+
+
+.error-review-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.error-review-panel{width:min(680px,100%);max-height:calc(100vh - 44px);overflow:auto;border:1px solid #7f1d1d;border-radius:26px;background:linear-gradient(180deg,#24131a,#0f172a 64%);padding:34px;box-shadow:0 32px 110px rgba(0,0,0,.65);text-align:center}
+.error-review-icon{width:70px;height:70px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:rgba(239,68,68,.15);border:1px solid rgba(248,113,113,.55);color:#fecaca;font-size:2rem;font-weight:950}
+.error-review-panel h2{margin:12px 0 8px;font-size:clamp(1.55rem,4vw,2.3rem)}.error-review-panel p{color:#cbd5e1;line-height:1.55;margin:0 auto 18px;max-width:560px}.error-review-number{font-size:clamp(2rem,7vw,3.6rem);font-weight:950;color:#fca5a5;line-height:1;margin:8px 0}.error-review-actions{display:grid;gap:12px;margin-top:20px}.error-review-actions button{width:100%;min-height:58px;padding:15px 18px;font-size:1.05rem}.error-review-actions .danger{background:#ef4444;color:#fff}.error-review-actions .success{background:#22c55e;color:#052e16}.error-review-actions .secondary{background:#243244;color:#e2e8f0}.review-mode-banner{display:none;margin:0 0 14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(248,113,113,.5);background:rgba(127,29,29,.18);color:#fecaca;font-weight:850}.review-mode-banner.show{display:block}.review-exit-btn{display:none!important}.review-exit-btn.show{display:inline-flex!important;align-items:center;justify-content:center;background:#7f1d1d;color:#fee2e2;border:1px solid rgba(248,113,113,.55)}
+@media(max-width:780px){.error-review-overlay{padding:12px;padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:calc(12px + env(safe-area-inset-bottom))}.error-review-panel{padding:24px 16px;border-radius:20px;max-height:calc(100vh - 24px)}.error-review-actions button{min-height:62px}}
+
+
+.session-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.session-toolbar button{flex:1 1 210px}.session-card{border:1px solid var(--border);background:#0b1220;border-radius:16px;padding:16px;margin:12px 0}.session-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.session-title{font-weight:900;color:#f8fafc}.session-time{color:#fcd34d;font-weight:800}.session-meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.session-chip{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;border:1px solid var(--border);background:#111827;color:#cbd5e1;font-size:.88rem;font-weight:750}.session-chip.good{border-color:rgba(34,197,94,.45);color:#bbf7d0}.session-chip.bad{border-color:rgba(239,68,68,.45);color:#fecaca}.session-chip.warn{border-color:rgba(245,158,11,.45);color:#fde68a}.session-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.session-actions button{padding:10px 12px;font-size:.92rem}.session-detail{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}.session-answer{border:1px solid var(--border);border-radius:12px;padding:12px;margin:8px 0;background:#111827}.session-answer.correct{border-color:rgba(34,197,94,.35)}.session-answer.wrong{border-color:rgba(239,68,68,.35)}.session-answer.unanswered{border-color:rgba(148,163,184,.35)}.session-empty{padding:20px;text-align:center;border:1px dashed var(--border);border-radius:16px;color:var(--muted);background:#0b1220}.session-top-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.session-top-actions button{flex:1 1 190px}.danger-outline{background:transparent!important;color:#fecaca!important;border:1px solid rgba(239,68,68,.5)!important}
+@media(max-width:780px){.session-card{padding:14px}.session-actions button,.session-top-actions button{flex:1 1 100%}}
+
+
+.setup-title-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:8px}.setup-title-row h2{margin:0}.history-main-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#451a03;border:1px solid rgba(253,230,138,.65);box-shadow:0 10px 28px rgba(245,158,11,.18);padding:12px 18px;border-radius:14px;font-weight:900}.history-main-btn:hover{transform:translateY(-1px);filter:brightness(1.03)}@media(max-width:680px){.setup-title-row{align-items:stretch}.history-main-btn{width:100%}}
+@media (hover:hover) and (pointer:fine){.answer:hover{border-color:#f59e0b;background:#1f1a10}}
+@media (hover:none),(pointer:coarse){.answer:hover{border-color:var(--border);background:#0b1220}.answer:focus{outline:none}}
+</style>
+</head>
+<body onload="init()">
+<div class="container">
+<header id="appHeader">
+  <div>
+    <h1>Simulatore date<br>Storia 2026</h1>
+    <p class="subtitle">Quiz interattivo con risposte mescolate: non sono sempre in posizione A.</p>
+  </div>
+  <div class="badge"><span id="totalCount">0</span> domande data</div>
+</header>
+<div id="installHint" class="install-hint" role="status">
+  <button class="install-close" type="button" aria-label="Chiudi istruzioni" onclick="dismissInstallHint()">×</button>
+  <strong>Installa su iPhone:</strong> apri questa pagina in Safari, tocca <b>Condividi</b>, poi <b>Aggiungi alla schermata Home</b> e attiva <b>Apri come app web</b>.
+</div>
+<div class="offline-pill" aria-live="polite"><span class="offline-dot"></span><span id="connectionText">Disponibile offline dopo il primo caricamento</span></div>
+<section id="setup" class="card">
+  <div class="setup-title-row"><h2>Impostazioni quiz</h2><button type="button" class="history-main-btn" onclick="openSessionArchive()">Cronologia simulazioni e studio</button></div>
+  <p class="small">Domande estratte dalla sezione <b>STORIA</b> della banca dati 2026: ho incluso i quesiti in cui la risposta corretta è una data, un anno, un secolo o un periodo storico, oppure il testo chiede chiaramente una data.</p>
+  <div class="grid">
+    <div class="col6"><label>Modalità</label><select id="mode"><option value="studio" selected>Studio: correzione immediata</option><option value="simulazione">Simulazione: correzione alla fine</option></select></div>
+    <div class="col6"><label>Tipo data</label><select id="typeFilter"><option value="all">Tutti</option></select></div>
+    <div class="col6"><label>Cerca parola o numero domanda</label><input id="keyword" type="text" placeholder="Esempio: Mussolini, 1948, guerra fredda, 1346"></div>
+    <div class="col6"><label>Opzioni</label><div class="switch"><input id="autoNext" type="checkbox" checked><span>AutoNext: se la risposta è corretta passa automaticamente alla successiva</span></div><p class="small" style="margin:8px 0 0">Le domande e le risposte vengono mescolate automaticamente.</p></div>
+  </div>
+
+
+  <div id="preparationCard" class="prep-card">
+    <div class="prep-head">
+      <div>
+        <div class="prep-title"><span class="prep-icon">▥</span> Livello di preparazione</div>
+        <div class="prep-subtitle">Puoi esercitarti su tutte le domande, solo su quelle sbagliate oppure su quelle mai risposte.</div>
+      </div>
+    </div>
+    <div class="prep-bar" aria-hidden="true">
+      <span id="prepBarNonLeSai" class="prep-segment non-le-sai" style="width:0%"></span>
+      <span id="prepBarNonRisposte" class="prep-segment non-risposte" style="width:100%"></span>
+    </div>
+    <div class="prep-options">
+      <label class="prep-option is-master" data-prep-option="prepAll">
+        <input id="prepAll" type="checkbox" checked onchange="handlePreparationChange('prepAll')">
+        <span class="prep-bullet bullet-all"></span>
+        <span class="prep-name">Tutte</span>
+        <span id="prepCountAll" class="prep-count">0</span>
+      </label>
+      <label class="prep-option" data-prep-option="prepNonLeSai">
+        <input id="prepNonLeSai" type="checkbox" checked onchange="handlePreparationChange('prepNonLeSai')">
+        <span class="prep-bullet non-le-sai"></span>
+        <span class="prep-name">Non le sai</span>
+        <span id="prepCountNonLeSai" class="prep-count">0</span>
+      </label>
+      <label class="prep-option" data-prep-option="prepNonRisposte">
+        <input id="prepNonRisposte" type="checkbox" checked onchange="handlePreparationChange('prepNonRisposte')">
+        <span class="prep-bullet non-risposte"></span>
+        <span class="prep-name">Non risposte</span>
+        <span id="prepCountNonRisposte" class="prep-count">0</span>
+      </label>
+    </div>
+    <div id="prepSummary" class="prep-summary">Statistiche ancora vuote: tutte le domande sono al momento classificate come non risposte.</div>
+    <div class="prep-actions">
+      <button type="button" class="prep-link-btn" onclick="resetPreparationStats()">🗑 Azzera statistiche</button>
+      <button type="button" class="prep-outline-btn" onclick="selectAllPreparation()">✓ Seleziona tutte</button>
+    </div>
+  </div>
+
+  <div id="questionBlockCard" class="block-card">
+    <div class="block-head">
+      <div class="block-title"><span class="block-icon">☷</span> Blocco domande</div>
+    </div>
+    <div class="block-toggle-row">
+      <span>Abilita/Disabilita Blocco domande</span>
+      <label class="toggle-control" aria-label="Abilita o disabilita il blocco domande">
+        <input id="blockEnabled" type="checkbox" checked onchange="toggleBlockRange()">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="block-help">Seleziona il range di domande su cui esercitarti. Quando è attivo, il quiz utilizza tutte le domande comprese nell’intervallo selezionato.</div>
+    <div class="range-grid">
+      <div class="range-field">
+        <label for="blockStart">Inizio blocco su</label>
+        <div class="stepper">
+          <button type="button" aria-label="Riduci inizio blocco" onclick="adjustBlockValue('start',-1)">−</button>
+          <input id="blockStart" type="number" min="1" value="1" inputmode="numeric" onchange="normalizeBlockRange('start')" oninput="previewBlockRange('start')">
+          <button type="button" aria-label="Aumenta inizio blocco" onclick="adjustBlockValue('start',1)">+</button>
+        </div>
+        <div class="range-max">Max: <span class="blockMax">0</span></div>
+      </div>
+      <div class="range-field">
+        <label for="blockEnd">Fine blocco su</label>
+        <div class="stepper">
+          <button type="button" aria-label="Riduci fine blocco" onclick="adjustBlockValue('end',-1)">−</button>
+          <input id="blockEnd" type="number" min="1" value="1" inputmode="numeric" onchange="normalizeBlockRange('end')" oninput="previewBlockRange('end')">
+          <button type="button" aria-label="Aumenta fine blocco" onclick="adjustBlockValue('end',1)">+</button>
+        </div>
+        <div class="range-max">Max: <span class="blockMax">0</span></div>
+      </div>
+    </div>
+    <div id="blockSummary" class="block-summary"></div>
+  </div>
+
+  <div class="buttons"><button onclick="startQuiz()">Avvia simulazione</button><button class="secondary" onclick="document.getElementById('archiveCard').scrollIntoView({behavior:'smooth'})">Vedi elenco domande</button></div>
+</section>
+<section id="quiz" class="card hide">
+  <div id="reviewModeBanner" class="review-mode-banner">Modalità ripasso errori: stai vedendo solo le domande sbagliate nel quiz appena concluso.</div>
+  <div class="meta"><span id="progressText"></span><span id="scoreText"></span></div>
+  <div class="progress-wrap"><div id="progress" class="progress"></div></div>
+  <div style="margin-top:14px"><span id="sourceNum" class="qnum"></span></div>
+  <div id="question" class="question"></div>
+  <div id="answers" class="answers"></div>
+  <div id="feedback" class="resultBox hide"></div>
+  <div class="quiz-nav">
+    <button id="prevBtn" class="secondary" type="button" onclick="previousQuestion()">← Indietro</button>
+    <button id="nextBtn" type="button" onclick="nextQuestion()">Avanti →</button>
+    <button id="finishEarlyBtn" class="ghost" type="button" onclick="requestFinishQuiz()">Termina quiz</button>
+    <button class="secondary" type="button" onclick="resetAll()">Esci</button>
+    <button id="reviewExitBtn" class="review-exit-btn" type="button" onclick="stopErrorReviewAndReturn()">Smetti ripasso errori</button>
+  </div>
+  <p class="small">Scorciatoie: <span class="kbd">1</span>-<span class="kbd">5</span> per rispondere; <span class="kbd">←</span>/<span class="kbd">→</span> per spostarti.</p>
+</section>
+<div id="completionOverlay" class="completion-overlay hide" role="dialog" aria-modal="true" aria-labelledby="completionTitle">
+  <div class="completion-panel">
+    <div class="completion-icon">✓</div>
+    <h2 id="completionTitle">Hai completato tutte le domande</h2>
+    <p id="completionText">Puoi terminare il quiz e vedere il risultato oppure tornare indietro per controllare le risposte e rivedere gli errori.</p>
+    <div class="completion-actions">
+      <button id="confirmFinishBtn" type="button" onclick="finishQuiz(true)">Termina quiz</button>
+      <button type="button" class="secondary" onclick="returnToReview()">← Torna indietro per rivedere errori</button>
+    </div>
+  </div>
+</div>
+
+<div id="errorReviewOverlay" class="error-review-overlay hide" role="dialog" aria-modal="true" aria-labelledby="errorReviewTitle">
+  <div class="error-review-panel">
+    <div class="error-review-icon">!</div>
+    <h2 id="errorReviewTitle">Ripasso degli errori</h2>
+    <div id="errorReviewCount" class="error-review-number">0</div>
+    <p id="errorReviewText">Hai commesso degli errori in questo quiz. Puoi esercitarti solo su queste domande, senza mischiarle con le altre.</p>
+    <div class="error-review-actions">
+      <button id="startErrorReviewBtn" type="button" class="danger" onclick="startErrorReview()">Ripeti solo gli errori</button>
+      <button id="repeatErrorReviewBtn" type="button" class="danger hide" onclick="repeatErrorReviewRound()">Ripeti ancora gli stessi errori</button>
+      <button id="viewErrorListBtn" type="button" class="secondary" onclick="closeErrorReviewOverlay()">Guarda l’elenco degli errori</button>
+      <button id="stopErrorReviewBtn" type="button" class="success" onclick="stopErrorReviewAndReturn()">Smetti e torna ai quiz normali</button>
+    </div>
+  </div>
+</div>
+
+<section id="results" class="card hide">
+  <h2>Risultato</h2>
+  <div class="grid">
+    <div class="col4"><div class="stat"><span class="small">Punteggio</span><br><strong id="finalScore"></strong></div></div>
+    <div class="col4"><div class="stat"><span class="small">Percentuale</span><br><strong id="finalPct"></strong></div></div>
+    <div class="col4"><div class="stat"><span class="small">Errori</span><br><strong id="mistakeCount"></strong></div></div>
+  </div>
+  <p id="finalMsg" class="question" style="font-size:1.05rem"></p>
+  <div class="buttons"><button onclick="resetAll()">Nuova simulazione</button><button class="secondary" onclick="retryMistakes()">Rifai solo errori</button><button class="ghost" onclick="exportMistakes()">Scarica errori CSV</button></div>
+  <h3>Ripasso errori</h3>
+  <div id="review"></div>
+</section>
+
+<section id="sessionArchiveCard" class="card hide">
+  <div class="session-top-actions">
+    <button type="button" class="secondary" onclick="closeSessionArchive()">← Torna alla homepage</button>
+    <button type="button" class="danger-outline" onclick="clearSessionArchive()">Elimina tutta la cronologia</button>
+  </div>
+  <h2>Simulazioni e studio effettuati</h2>
+  <p class="small">Qui trovi data, ora, modalità, domande corrette, sbagliate e non risposte di ogni quiz concluso. Puoi anche ripetere esclusivamente gli errori di una singola sessione.</p>
+  <div id="sessionArchiveSummary" class="searchCount"></div>
+  <div id="sessionArchiveList"></div>
+</section>
+
+<section id="archiveCard" class="card">
+  <h2>Elenco domande incluse</h2>
+  <p class="small">Qui puoi controllare tutte le domande caricate nel simulatore e vedere la risposta corretta quando vuoi.</p>
+  <input id="archiveSearch" type="text" oninput="showArchive()" placeholder="Cerca nell'elenco: anno, evento, parola chiave o numero domanda">
+  <div id="archiveCount" class="searchCount"></div>
+  <div id="archive" class="list"></div>
+</section>
+<div id="appFooter" class="footer">Creato automaticamente dalla banca dati quesiti 2026. Criterio: quesiti della sezione Storia con risposta corretta temporale o richiesta esplicita di data/anno/secolo/periodo.</div>
+</div>
+<script>
+const DATA = [{"num": 1338, "question": "In Cile il generale Augusto Pinochet Ugarte\nterminò il suo mandato nel…", "answers": ["1990", "2006", "1984", "1973", "1965"], "correct": 0, "type": "Anno"}, {"num": 1346, "question": "In che data avvenne lo sbarco in Normandia?", "answers": ["6 giugno 1944", "25 aprile 1945", "8 settembre 1943", "10 giugno 1940", "2 giugno 1948"], "correct": 0, "type": "Data completa"}, {"num": 1372, "question": "Quanto è rimasto in carica, come Presidente\ndegli Stati Uniti, George W. Bush?", "answers": ["Dal 2001 al 2009", "Dal 1989 al 1993", "Dal 2009 al 2017", "Dal 1993 al 2001", "Dal 2009 al 2015"], "correct": 0, "type": "Periodo"}, {"num": 1376, "question": "La Repubblica Romana governata dal\ntriumvirato Mazzini-Saffi-Armellini, fu proclamata\nnel…", "answers": ["1849", "1831", "1853", "1860", "1855"], "correct": 0, "type": "Anno"}, {"num": 1378, "question": "George W. Bush ha assunto la carica di\nPresidente degli Stati Uniti d'America nel…", "answers": ["2001", "2009", "2017", "1994", "2011"], "correct": 0, "type": "Anno"}, {"num": 1381, "question": "Prima Guerra mondiale: quando entra in\nguerra l'Italia?", "answers": ["1915", "1914", "1920", "1917", "1918"], "correct": 0, "type": "Anno"}, {"num": 1383, "question": "La Guerra in Bosnia fu uno scontro  che la\nNato e la diplomazia statunitense contribuirono a\nsedare. Quando si verificò?", "answers": ["Dal 1992 al 1995", "Dal 1986 al 1994", "Dal 1989 al 2002", "Nel 1997", "Dall'1985 al 1997"], "correct": 0, "type": "Periodo"}, {"num": 1386, "question": "In che anno Vittorio Emanuele III fece\narrestare Mussolini?", "answers": ["1943", "1941", "1945", "1914", "1922"], "correct": 0, "type": "Anno"}, {"num": 1387, "question": "L'entrata in circolazione ufficiale dell'euro\nrisale al…", "answers": ["Al 1 gennaio 2002", "Al 1 maggio 2000", "All'11 settembre 1989", "Al 1 dicembre 1994", "Al 15 gennaio 2002"], "correct": 0, "type": "Data completa"}, {"num": 1392, "question": "La Rivoluzione francese iniziò nel…", "answers": ["1789", "1799", "1779", "1796", "1761"], "correct": 0, "type": "Anno"}, {"num": 1394, "question": "La Guerra di Crimea, che vide protagonisti\nImpero russo da un lato e alleanza tra Impero\nOttomano, Francia, Gran Bretagna e Regno di\nSardegna dall'altro, in quale secolo fu combattuta?", "answers": ["XIX secolo", "XXI secolo", "XV secolo", "XVIII secolo", "XX secolo"], "correct": 0, "type": "Secolo"}, {"num": 1398, "question": "Quando si verifico il cosiddetto \"autunno\ncaldo\"?", "answers": ["Nella seconda metà del 1969", "In tutto il 1968 con un suo intensificarsi nel periodo\nottobre- novembre", "Nell'ottobre 1966", "Per tutto l'autunno del 1967", "Nell'estate 1968"], "correct": 0, "type": "Anno"}, {"num": 1403, "question": "In quale anno gli USA intervennero nel primo\nconflitto mondiale?", "answers": ["1917", "1920", "1933", "1931", "1921"], "correct": 0, "type": "Anno"}, {"num": 1405, "question": "Il \"Martedì nero\" del 1929 fa riferimento a che\ncosa?", "answers": ["Al giorno del crollo della borsa valori avvenuto il 29\nottobre 1929 a New York", "All'invasione della Polonia da parte dell'esercito\ntedesco avvenuta il 1° settembre 1939", "Al 6 agosto 1945 quando venne sganciata la bomba\natomica sulla città di Hiroshima", "All'assassinio dell'arciduca Francesco Ferdinando\ncompiuto a Sarajevo (Bosnia) il 28 giugno 1914", "All'uccisione di Paolo Borsellino, avvenuta il 19 luglio\n1992"], "correct": 0, "type": "Data completa"}, {"num": 1428, "question": "Il \"muro di Berlino\" fu innalzato nel…", "answers": ["1961", "1945", "1989", "1968", "1975"], "correct": 0, "type": "Anno"}, {"num": 1433, "question": "Quando esplose la seconda fase della\nrivoluzione russa?", "answers": ["Dal 24 al 25 ottobre 1917", "Dal 1 al 30 ottobre 1916", "Dal 24 al 25 ottobre 1915", "Dal 1 al 30 ottobre 1919", "Dal 12 al 20 ottobre 1920"], "correct": 0, "type": "Data completa"}, {"num": 1435, "question": "Qual è l'anno della presa della Bastiglia?", "answers": ["1789", "1718", "1815", "1848", "1861"], "correct": 0, "type": "Anno"}, {"num": 1439, "question": "Quando avvenne, in Russia, il primo tentativo\ndi rivoluzione, trasformato poi in strage dalle\ntruppe dello zar?", "answers": ["1905", "1734", "1820", "1940", "1911"], "correct": 0, "type": "Anno"}, {"num": 1441, "question": "Quando ebbe inizio la Seconda Guerra\nMondiale?", "answers": ["1939", "1940", "1941", "1938", "1914"], "correct": 0, "type": "Anno"}, {"num": 1447, "question": "Il \"biennio rosso\" italiano comprende il\nperiodo tra…", "answers": ["1919-1920", "1901-1902", "1937-1938", "1949-1950", "1924-1925"], "correct": 0, "type": "Periodo"}, {"num": 1456, "question": "Quando fu fondata la Quinta Repubblica in\nFrancia, ad opera di Charles De Gaulle?", "answers": ["1958", "1962", "1946", "1968", "1952"], "correct": 0, "type": "Anno"}, {"num": 1459, "question": "Quando le truppe tedesche di Hitler iniziarono\nl'occupazione della Boemia?", "answers": ["Nel marzo 1939", "Nell'ottobre 1936", "Nell'ottobre 1925", "Nell'estate del 1914", "Nel gennaio 1938"], "correct": 0, "type": "Mese/anno"}, {"num": 1460, "question": "Quale fu l'anno che fu caratterizzato\ndall'inizio della contestazione studentesca?", "answers": ["1968", "1977", "1982", "1956", "1960"], "correct": 0, "type": "Anno"}, {"num": 1469, "question": "Quando si svolse il XX Congresso, che segnò\nlo scioglimento del Partito comunista italiano e la\nnascita del Partito Democratico della Sinistra\n(PDS)?", "answers": ["1991", "1995", "1983", "2001", "1997"], "correct": 0, "type": "Anno"}, {"num": 1475, "question": "Qual è il secolo in cui l'Illuminismo si diffuse\nin Europa?", "answers": ["XVIII", "XX", "XIX", "XVII", "XV"], "correct": 0, "type": "Secolo"}, {"num": 1478, "question": "La data di inizio dello Sbarco in Normandia è:", "answers": ["All'alba del 6 giugno 1944", "Nella notte del 21 maggio 1943", "Nella notte del 21 ottobre 1945", "All'alba del 4 gennaio 1942", "Nel pomeriggio del 7 agosto 1941"], "correct": 0, "type": "Data completa"}, {"num": 1484, "question": "Quando fu fondata l'agenzia di stampa\nANSA?", "answers": ["Nel gennaio 1945", "Nell'ottobre 1971", "Nel gennaio 1952", "Nell'ottobre 1931", "Nel marzo 1951"], "correct": 0, "type": "Mese/anno"}, {"num": 1488, "question": "In quale anno entrarono a Parigi le truppe\nnaziste?", "answers": ["1940", "1935", "1955", "1933", "1965"], "correct": 0, "type": "Anno"}, {"num": 1490, "question": "Con il termine “età giolittiana” si identifica il\nperiodo storico che va:", "answers": ["dal 1901 al 1914", "dal 1925 al 1931", "dal 1957 al 1959", "dal 1871 al 1895", "dal 1910 al 1940"], "correct": 0, "type": "Periodo"}, {"num": 1491, "question": "Il giuramento \"O Roma o morte!\" fu\npronunciato da:", "answers": ["Giuseppe Garibaldi nel 1862", "Camillo Cavour nel 1870", "Vittorio Emanuele II nel 1892", "Giuseppe Mazzini nel 1875", "De Gasperi V nel 1948"], "correct": 0, "type": "Anno"}, {"num": 1494, "question": "Salvador Allende era...", "answers": ["Un politico che nel 1970 divenne Presidente della\nRepubblica del Cile", "Un politico che nel 1970 divenne Presidente della\nFrancia", "Un politico che nel 1975 divenne Presidente della\nRepubblica dell' Estonia", "Un politico che nel 1980 divenne Presidente della\nRepubblica della Lituania", "Un amico di Pinochet"], "correct": 0, "type": "Anno"}, {"num": 1495, "question": "In quale anno fu combattuta la guerra del\nGolan?", "answers": ["Nel 1967", "Nel 1955", "Nel 1961", "Nel 1970", "Nel 1965"], "correct": 0, "type": "Anno"}, {"num": 1496, "question": "A che cosa condusse la sconfitta della Russia\nnella guerra russo nipponica?", "answers": ["Alla rivoluzione del 1905", "All'uscita della Russia dalla I guerra mondiale", "all'insurrezione armata dell'ottobre 1917", "Alla rivoluzione bolscevica", "Alla guerra d'inverno"], "correct": 0, "type": "Anno"}, {"num": 1503, "question": "L'impopolare \"imposta sul macinato\" nel\nRegno d'Italia fu promulgata:", "answers": ["nel 1868", "nel 1895", "nel 1935", "nel 1898", "nel 1920"], "correct": 0, "type": "Anno"}, {"num": 1505, "question": "In quale anno il Giappone è entrato nella\nseconda guerra mondiale?", "answers": ["1941", "1954", "1938", "1951", "1933"], "correct": 0, "type": "Anno"}, {"num": 1509, "question": "Il periodo compreso tra il\n____________________ è detto età\ndell'imperialismo.", "answers": ["1870 e la prima guerra mondiale", "1830 e il 1858", "1902 e il 1930", "1850 e il 1870", "1930 e il 1880"], "correct": 0, "type": "Anno"}, {"num": 1510, "question": "Il Partito Socialista Italiano fu fondato nel:", "answers": ["1892", "1925", "1870", "1921", "1941"], "correct": 0, "type": "Anno"}, {"num": 1511, "question": "La tassa sul macinato venne abolita:", "answers": ["nel 1884 da Agostino Depretis", "nel 1890 da Giovanni Giolitti", "nel 1870 da Giovanni Lanza", "nel 1920 da Francesco Saverio Nitti", "nel 1890 da Tommaso Tittoni"], "correct": 0, "type": "Anno"}, {"num": 1513, "question": "La terza guerra di indipendenza italiana fu\ncombattuta nel:", "answers": ["1866", "1900", "1875", "1895", "1902"], "correct": 0, "type": "Anno"}, {"num": 1514, "question": "La guerra fredda fu un periodo di tensione\ngeopolitica tra gli Stati Uniti e l'Unione Sovietica e i\nloro rispettivi alleati, il blocco occidentale e il\nblocco orientale, intercorso tra il:", "answers": ["1947 e il 1991", "1950 e il 1960", "1989 e il 2004", "1948 e il 1958", "1952 e il 1995"], "correct": 0, "type": "Anno"}, {"num": 1515, "question": "Le quattro giornate di Napoli furono\nun'insurrezione popolare avvenuta nel:", "answers": ["1943", "1955", "1848", "1927", "1958"], "correct": 0, "type": "Anno"}, {"num": 1517, "question": "Quando fu fondata la Giovine Italia da\nMazzini ?", "answers": ["Nel 1831", "Nel 1833", "Nel 1848", "Nel 1870", "Nel 1789"], "correct": 0, "type": "Anno"}, {"num": 1520, "question": "Quando fu proclamata  la Repubblica\nPopolare Cinese?", "answers": ["1° ottobre 1949", "1° marzo 1945", "1°giugno 1950", "1° maggio 1952", "1° aprile 1955"], "correct": 0, "type": "Mese/anno"}, {"num": 1523, "question": "L'occupazione di Massaua, che divenne poi\npossedimento coloniale italiano avvenne nel…", "answers": ["1885", "1896", "1891", "1862", "1874"], "correct": 0, "type": "Anno"}, {"num": 1525, "question": "Quando vennero avviati gli studi\ncinematografici di Cinecittà?", "answers": ["Il 28 aprile 1937", "Il 28 ottobre 1922", "Il 2 giugno 1954", "L'8 settembre 1943", "Il 3 agosto 1935"], "correct": 0, "type": "Data completa"}, {"num": 1530, "question": "Quando inizio il primo governo Minghetti?", "answers": ["Nel marzo 1863", "Nel giugno 1865", "Nel dicembre 1870", "Nel luglio 1902", "Nel maggio 1880"], "correct": 0, "type": "Mese/anno"}, {"num": 1535, "question": "Il suffragio universale  in Italia venne\nintrodotto nel:", "answers": ["1946", "1945", "1921", "1948", "1950"], "correct": 0, "type": "Anno"}, {"num": 1548, "question": "Quando gli Stati Uniti dichiararono guerra a\nGermania e Austria, nel corso della Prima Guerra\nMondiale?", "answers": ["Il 6 aprile 1917", "Il 3 gennaio 1918", "Il 20 settembre 1916", "Il 7 giugno 1914", "Il 15 maggio 1918"], "correct": 0, "type": "Data completa"}, {"num": 1553, "question": "Quando è avvenuta la disfatta di Caporetto?", "answers": ["Nel 1917", "Nel 1914", "Nel 1915", "Nel 1918", "Nel 1945"], "correct": 0, "type": "Anno"}, {"num": 1554, "question": "La \"Cassa del Mezzogiorno\" fu istituita nel…", "answers": ["1950", "1947", "1938", "1962", "1923"], "correct": 0, "type": "Anno"}, {"num": 1561, "question": "La terza Internazionale Comunista ebbe luogo\na Mosca nel…", "answers": ["1919", "1911", "1923", "1925", "1927"], "correct": 0, "type": "Anno"}, {"num": 1562, "question": "Quando fu destituito Mussolini e da chi?", "answers": ["Luglio 1943, dal Gran Consiglio del fascismo", "8 settembre 1943, da Badoglio", "25 aprile 1945, dai partigiani", "Giugno 1944, dagli Americani", "Guigno 1945, dal Vittorio Emanuele III"], "correct": 0, "type": "Periodo"}, {"num": 1569, "question": "Quando avvenne la deportazione degli ebrei\nromani?", "answers": ["16 ottobre 1943", "8 settembre 1943", "6 giugno 1944", "28 aprile 1945", "30 aprile 1945"], "correct": 0, "type": "Data completa"}, {"num": 1576, "question": "Per quanto tempo la Democrazia Cristiana ha\npartecipato al governo?", "answers": ["Ininterrottamente fino al 1994", "Saltuariamente fino al 1994", "Ad almeno cinque governi insieme al Partito\nComunista", "Ininterrottamente fino al 2002", "Un governo sì e uno no fino al 2000"], "correct": 0, "type": "Periodo"}, {"num": 1580, "question": "Quando avvenne la rivolta ungherese contro\nil regime comunista?", "answers": ["1956", "1949", "1938", "1988", "1961"], "correct": 0, "type": "Anno"}, {"num": 1583, "question": "Quando iniziò la Rivoluzione filippina contro\nla Spagna?", "answers": ["Nell'aprile 1896", "Nel giugno 1972", "Nel marzo 1901", "Nel febbraio 1935", "Nel settembre 1943"], "correct": 0, "type": "Mese/anno"}, {"num": 1586, "question": "Quando entra l'Italia nel secondo conflitto\nmondiale e per volere di chi?", "answers": ["Nel 1940, per volontà di Mussolini", "Nel 1939, per volontà di Mussolini", "Nel 1945, per decisione del re", "Nel 1943, per scelta di partigiani", "Nel 1939, per volontà di Badoglio"], "correct": 0, "type": "Anno"}, {"num": 1591, "question": "L' \"Operazione Sofia\"…", "answers": ["È un'operazione militare lanciata dall'Unione\neuropea in conseguenza dei naufragi avvenuti\nnell'aprile 2015", "È un'operazione militare lanciata nel 2014 dall'Italia\nper salvare Sofia, la figlia dell'allora primo ministro\nitaliano", "È un accordo stretto nel 2014 tra Italia e Libia per\ngestire la questione dei rifugiati", "È il nome della Direttiva dell'Unione Europea\nemanata nel 2015, con lo scopo di gestire in modo\nunitario la questione dei migranti", "È un'operazione lanciata per risolvere il problema\ndella povertà a Sofia, in Bulgaria"], "correct": 0, "type": "Mese/anno"}, {"num": 1594, "question": "Qual è il biennio della guerra di liberazione,in\nItalia?", "answers": ["1943-45", "1939-41", "1941-43", "1945-47", "1937-39"], "correct": 0, "type": "Periodo"}, {"num": 1599, "question": "L'IRI fu istituito come ente provvisorio nel…", "answers": ["1933", "1937", "1952", "1962", "1942"], "correct": 0, "type": "Anno"}, {"num": 1602, "question": "In quale anno fu firmato il cosiddetto \"Patto\nd'Acciaio\", l'accordo tra i governi del Regno d'Italia\ne della Germania nazista, firmato dai rispettivi\nministri degli Esteri Galeazzo Ciano e Joachim von\nRibbentrop?", "answers": ["1939", "1932", "1936", "1940", "1951"], "correct": 0, "type": "Anno"}, {"num": 1604, "question": "In che anno si svolse la Conferenza di\nBandung alla quale parteciparono 29 Paesi\nafro-asiatici, in rappresentanza di una popolazione\ndi 1.400 milioni?", "answers": ["1955", "1964", "1973", "1981", "1969"], "correct": 0, "type": "Anno"}, {"num": 1608, "question": "La Guerra franco-prussiana, le cui vicende\nhanno un peso rilevante per l'occupazione di Roma\nda parte delle truppe italiane e il raggiungimento\ndell'Unità nazionale, si colloca nel...", "answers": ["1870", "1920", "1798", "1908", "1900"], "correct": 0, "type": "Anno"}, {"num": 1610, "question": "La Guerra d'Indocina, combattuta fra\nl'esercito coloniale francese e il movimento per\nl'indipendenza del Vietnam, quando avvenne?", "answers": ["1946-1954", "1944-1950", "1922-1930", "1961-1963", "1956-1960"], "correct": 0, "type": "Periodo"}, {"num": 1612, "question": "In quali date vennero sganciate le bombe\natomiche su Hiroshima e Nagasaki?", "answers": ["6 e 9 agosto del 1945", "21 e 22 marzo 1940", "25 e 26 aprile del 1945", "4 e 6 giugno del 1944", "25 e 26 luglio 1943"], "correct": 0, "type": "Mese/anno"}, {"num": 1624, "question": "Quando divenne presidente degli Stati Uniti\nWoodrow Wilson?", "answers": ["1913", "1919", "1936", "1921", "1929"], "correct": 0, "type": "Anno"}, {"num": 1625, "question": "Le leggi di Norimberga (Leggi per la\nprotezione del sangue), nella Germania nazista,\nfurono promulgate nel…", "answers": ["1935", "1920", "1942", "1950", "1948"], "correct": 0, "type": "Anno"}, {"num": 1636, "question": "L'anno in cui venne istituito l'Ente Nazionale\nIdrocarburi fu il…", "answers": ["1953", "1945", "1975", "1962", "1935"], "correct": 0, "type": "Anno"}, {"num": 1654, "question": "Nel gennaio di quale anno l'URSS consolidò i\nrapporti con i paesi dell'Europa orientale\n(Repubblica Democratica Tedesca, Polonia,\nCecoslovacchia, Ungheria, Romania e Bulgaria),\nistituendo un Consiglio di Mutua Assistenza\nEconomica e stringendo con essi nel maggio del\n1955 un'alleanza militare che prese il nome di Patto\ndi Varsavia?", "answers": ["1949", "1954", "1953", "1948", "1951"], "correct": 0, "type": "Anno"}, {"num": 1665, "question": "La Rivoluzione di Velluto avvenne nel periodo\nche va dal…", "answers": ["...17 novembre al 29 dicembre 1989", "…16 Giugno al 7 Luglio 2002", "…24 Aprile al 28 Maggio 2015", "…6 Marzo al 7 Aprile 1967", "…18 settembre al 25 dicembre 1999"], "correct": 0, "type": "Data completa"}, {"num": 1667, "question": "Quando avvenne la Rivoluzione russa e chi\nne fu il promotore?", "answers": ["Nel 1917, con Lenin", "Nel 1917, con Stalin", "Nel 1919, con lo Zar", "Nel 1915, con i Bolscevichi", "Nel 1916, con gli Americani"], "correct": 0, "type": "Anno"}, {"num": 1668, "question": "L'Uzbekistan dichiara l'indipendenza\ndall'URSS nel…", "answers": ["1991", "1989", "2008", "1956", "2000"], "correct": 0, "type": "Anno"}, {"num": 1672, "question": "Il conflitto tra Iran e Iraq iniziò nel…", "answers": ["1980", "1998", "1991", "2006", "1987"], "correct": 0, "type": "Anno"}, {"num": 1676, "question": "La Caduta di Saigon avvenne il…", "answers": ["30 aprile del 1975", "1 maggio del 1978", "1 settembre del 2001", "4 novembre del 1990", "19 agosto del 1988"], "correct": 0, "type": "Mese/anno"}, {"num": 1680, "question": "L'unica azione multilaterale congiunta\ncompiuta dal Patto di Varsavia durante la sua storia\nfu…", "answers": ["L'invasione della Cecoslovacchia nel 1968", "L'invasione dell'Afghanistan nel 1981", "La guerra in Vietnam", "L'invasione dell'Ungheria nel 1956", "L'invasione della Polonia nel 1949"], "correct": 0, "type": "Anno"}, {"num": 1681, "question": "Dopo quasi dieci anni di guerra, l'Unione\nsovietica ritira le sue truppe dall'Afghanistan. In\nche periodo?", "answers": ["Tra il 1988 e il 1989", "Nel 1990", "Nel 1985", "A cavallo tra il 1986 e 1987", "Nel 1998"], "correct": 0, "type": "Periodo"}, {"num": 1688, "question": "L'espressione \"Bloody Sunday\" fa riferimento\na che cosa?", "answers": ["Al massacro di civili Irlandesi da parte delle forze di\npolizia Inglesi avvenuto nella città di Derry in Irlanda del\nNord il 30 Gennaio 1972", "Al massacro di Poliziotti Inglesi da parte dell’IRA", "Ad un episodio di efferata violenza tra rivali bande di\nHooligans", "Ad un massacro di militari inglesi avvenuto durante\nl’intervento militare nelle isole Falkland", "Alla morte della nota Regina inglese Bloody Mary,\nmorta di domenica"], "correct": 0, "type": "Data completa"}, {"num": 1689, "question": "Le organizzazioni politiche e sindacali\nantifasciste considerate sovversive furono sciolte\nnel…", "answers": ["1926", "1922", "1933", "1940", "1943"], "correct": 0, "type": "Anno"}, {"num": 1694, "question": "Gli Accordi di Oslo tra OLP e Israele furono\nstipulati il…", "answers": ["Il 13 settembre 1993", "Il 24 maggio 2001", "Il 7 dicembre 1999", "Il 14 marzo 2005", "Il 29 giugno 2000"], "correct": 0, "type": "Data completa"}, {"num": 1702, "question": "Il Patto di Varsavia ha avuto come aderente\nl'Albania?", "answers": ["Si, fino all’uscita formale nel 1968", "No", "Si, fino al collasso del blocco sovietico", "Si, fino all’uscita formale nel 1956, in reazione alla\ndura repressione dei moti insurrezionali di Budapest", "No fino al collasso del blocco sovietico, poi sì"], "correct": 0, "type": "Periodo"}, {"num": 1703, "question": "Il principe Ranieri III di Monaco e l'attrice\nstatunitense Grace Kelly si sposarono il…", "answers": ["19 aprile del 1956", "17 gennaio del 1950", "6 settembre del 1964", "4 giugno del 1974", "1 giugno del 1981"], "correct": 0, "type": "Mese/anno"}, {"num": 1706, "question": "La Repubblica Democratica Tedesca è\nesistita dal… al…", "answers": ["1949 – 1990", "1945 – 1976", "1960 – 1989", "1940 – 1945", "1949 – 1960"], "correct": 0, "type": "Periodo"}, {"num": 1708, "question": "Il Re Vittorio Emanuele III affidò l'incarico di\nformare il governo a Benito Mussolini dopo quale\naccadimento?", "answers": ["A seguito della  Marcia su Roma, nel 1922", "A seguito di un referendum popolare di massa\ntenuto nel 1922", "A causa della presa del potere alle elezioni del\nPartito Socialista Italiano, nel 1921", "A seguito delle sconfitte del governo liberale nelle\nguerre di colonizzazione in nord-Africa", "A seguito di un colpo di stato"], "correct": 0, "type": "Anno"}, {"num": 1715, "question": "La colonia britannica di Hong Kong venne\nriconsegnata alla Cina nel…", "answers": ["1997", "1985", "1989", "1979", "1991"], "correct": 0, "type": "Anno"}, {"num": 1716, "question": "Quando sono nati gli Emirati Arabi Uniti dopo\nl’emancipazione dal protettorato britannico?", "answers": ["1971", "2001", "1946", "1990", "1999"], "correct": 0, "type": "Anno"}, {"num": 1717, "question": "Quando entrò in vigore la Costituzione della\nRepubblica Italiana?", "answers": ["Il 1 gennaio 1948", "Il 1 gennaio 1946", "25 aprile 1945", "1 gennaio 1947", "11 agosto 1945"], "correct": 0, "type": "Data completa"}, {"num": 1725, "question": "La rivoluzione Romena che portò al crollo del\nregime comunista di Nicolae Ceausescu avvenne\nnel", "answers": ["1989", "1992", "2000", "1987", "1995"], "correct": 0, "type": "Anno"}, {"num": 1726, "question": "Il maresciallo Tito, leader della Repubblica\nSocialista Federale della Jugoslavia, muore nel…", "answers": ["1980", "2000", "1956", "1968", "1975"], "correct": 0, "type": "Anno"}, {"num": 1728, "question": "Richard Nixon, Presidente degli Stati Uniti, si\nrecò in Cina, riconoscendo ufficialmente il paese\nasiatico come grande potenza. Quando accadde\nciò?", "answers": ["1972", "1987", "1957", "1984", "1981"], "correct": 0, "type": "Anno"}, {"num": 1730, "question": "In Somalia, un colpo di stato portò al potere il\ngenerale Mohammed Siad Barre il…", "answers": ["Il 21 ottobre 1969", "Il 15 settembre 1959", "Il 22 novembre 1965", "Il 18 marzo 1956", "Il 28 febbraio 1958"], "correct": 0, "type": "Data completa"}, {"num": 1731, "question": "Alfredo Stroessner è stato…", "answers": ["Un generale e dittatore Paraguayano che prese il\npotere nel 1954 detenendolo fino al 1989", "Un generale e dittatore Austriaco che prese il potere\nnel 1954 detenendolo fino al 1989", "Un generale e dittatore Boliviano che prese il potere\nnel 1954 detenendolo fino al 1991", "Un generale e dittatore Greco che prese il potere nel\n1954 detenendolo fino al 2015", "Un generale e dittatore Polacco che prese il potere\nnel 1957 detenendolo fino al 1988"], "correct": 0, "type": "Periodo"}, {"num": 1733, "question": "Quando avvenne la conquista dell'isola di\nOkinawa da parte delle truppe statunitensi, durante\nla Seconda Guerra Mondiale?", "answers": ["Nel 1945 dopo 81 giorni di battaglia", "Nel 1941, subito dopo l'aggressione giapponese a\nPearl Harbour", "Fu un'operazione lampo che si concluse in una sola\ngiornata", "Fu l'ultimo intervento militare americano contro il\nGiappone", "Nel 1956"], "correct": 0, "type": "Anno"}, {"num": 1738, "question": "Quando morì Abraham Lincoln?", "answers": ["1865", "1723", "1890", "1839", "1872"], "correct": 0, "type": "Anno"}, {"num": 1740, "question": "Quando accadde la prima battaglia della\nSirte?", "answers": ["A metà dicembre del 1941", "Nel marzo del 1939", "A giugno del 1943", "A fine gennaio del 1946", "A metà novembre del 1954"], "correct": 0, "type": "Mese/anno"}, {"num": 1742, "question": "A che cosa fa riferimento il termine\n\"primavera dei popoli\"?", "answers": ["All'ondata di moti rivoluzionari che sconvolsero\nl'Europa nel 1848", "All’impegno di Ernesto Che Guevara per la lotta\nrivoluzionaria dei Paesi del terzo mondo", "Al processo storico che ha portato alla fine degli\nimperi coloniali e all'indipendenza dei popoli afroasiatici", "Al movimento politico e culturale sviluppatosi nella\nCecoslovacchia comunista alla fine degli anni sessanta", "Ad un autunno molto caldo nell'anno 1917"], "correct": 0, "type": "Anno"}, {"num": 1744, "question": "Il trattato di pace con il Giappone, dopo la\nSeconda Guerra Mondiale, fu ratificato con il\nTrattato di San Francisco. Questo accadde\nquando?", "answers": ["1951", "1945", "1960", "1964", "1955"], "correct": 0, "type": "Anno"}, {"num": 1746, "question": "Nella Seconda Guerra Mondiale, quando\nl'Italia mosse guerra alla Grecia?", "answers": ["Nel 1940", "Nel 1942", "Nel 1949", "Nel 1939", "Nel 1938"], "correct": 0, "type": "Anno"}, {"num": 1749, "question": "Quando erano state inaugurate le Torri\nGemelle di New York?", "answers": ["1973", "1999", "1940", "1923", "2001"], "correct": 0, "type": "Anno"}, {"num": 1754, "question": "A quali elezioni politiche fu presentato il\ncosiddetto \"listone\", che comprendeva candidati di\nfiducia del Governo e del Partito nazionale\nfascista?", "answers": ["Quelle del 1924", "Quelle del 1909", "Quelle del 1935", "Quelle del 1947", "Quelle del 1952"], "correct": 0, "type": "Anno"}, {"num": 1755, "question": "Quando è nata la FIAT, a Torino, col nome di\n\"Società Anonima Fabbrica Italiana di Automobili\"?", "answers": ["L'11 luglio 1899", "Il 5 settembre 1878", "Il 4 maggio 1788", "Il 3 marzo 1886", "Il 10 ottobre 1901"], "correct": 0, "type": "Data completa"}, {"num": 1760, "question": "Quando Luigi Napoleone Bonaparte fu\nproclamato, con plebiscito, imperatore dei\nfrancesi?", "answers": ["1852", "1815", "1870", "1900", "1848"], "correct": 0, "type": "Anno"}, {"num": 1768, "question": "Il \"new deal\" fu un piano di riforme\neconomiche e sociali promosso negli USA in quale\nperiodo?", "answers": ["Dal 1933 al 1937", "Dal 1940 al 1945", "Dal 1958 al 1961", "Dal 1928 al 1931", "Dal 1929 al 1933"], "correct": 0, "type": "Periodo"}, {"num": 1769, "question": "Hafiz al-Asad morì nel..", "answers": ["2000", "1995", "1989", "2006", "1998"], "correct": 0, "type": "Anno"}, {"num": 1770, "question": "Il passaggio dalla Monarchia alla Repubblica,\nin Nepal, fu completato nel...", "answers": ["2008", "2006", "2010", "1997", "2005"], "correct": 0, "type": "Anno"}, {"num": 1775, "question": "Quando l'Unione Europea fu allargata ai Paesi\ndell'Est?", "answers": ["2004 – 2007", "2007 – 2010", "2010 – 2013", "2001 – 2004", "2008 – 2011"], "correct": 0, "type": "Periodo"}, {"num": 1777, "question": "Il Massacro dei reali Nepalesi avvenne nel…", "answers": ["2001", "1846", "2006", "2005", "1976"], "correct": 0, "type": "Anno"}, {"num": 1780, "question": "L'esercito della Federazione Russa diede\ninizio alla campagna militare che poi prenderà il\nnome di seconda guerra Cecena. In che anno\naccadde ciò?", "answers": ["1999", "2002", "2012", "2009", "2005"], "correct": 0, "type": "Anno"}, {"num": 1782, "question": "Come si articola il conflitto dell'Ituri nella\nRepubblica Democratica del Congo?", "answers": ["Il conflitto ebbe molteplici fasi; i contrasti armati più\nrecenti avvennero tra il 1999 ed il 2003, protraendosi\nfino al 2007", "Il conflitto ebbe molteplici fasi; i contrasti armati più\nrecenti avvennero tra il 2004 ed il 2008, protraendosi\nfino al 2012", "Il conflitto ebbe molteplici fasi; i contrasti armati più\nrecenti avvennero tra il 2001 ed il 2002, protraendosi\nfino al 2010", "Il conflitto ebbe molteplici fasi; i contrasti armati più\nrecenti avvennero tra il 2003 ed il 2007, protraendosi\nfino al 2017", "Il conflitto ebbe molteplici fasi; i contrasti armati più\nrecenti avvennero tra il 2008 ed il 2009, protraendosi\nfino al 2021"], "correct": 0, "type": "Periodo"}, {"num": 1785, "question": "Qual è l'anno della caduta del Muro di\nBerlino?", "answers": ["1989", "1992", "1985", "1993", "1990"], "correct": 0, "type": "Anno"}, {"num": 1788, "question": "Di fatto, la Guerra Fredda terminò…", "answers": ["Nel 1991 con la dissoluzione dell'Urss e la nascita\ndella Federazione Russa", "Tra l'ottobre e il novembre 1956, con la rivoluzione\nungherese di Imre Nagy", "Il 30 aprile 1975, con la fine della guerra del Vietnam", "Con la fine della guerra russo-afghana del\n1979-1989", "Non è terminata, è ancora in corso"], "correct": 0, "type": "Anno"}, {"num": 1791, "question": "In che anno Massimo D'Azeglio guidò per la\nprima volta il governo?", "answers": ["Maggio 1849", "Giugno 1880", "Dicembre 1902", "Luglio 1930", "4292"], "correct": 0, "type": "Mese/anno"}, {"num": 1792, "question": "Quando terminò la repressione del\nbrigantaggio meridionale?", "answers": ["1865", "1889", "1876", "1903", "1896"], "correct": 0, "type": "Anno"}, {"num": 1808, "question": "La prima importante riforma agraria\nrepubblicana avvenne nel…", "answers": ["1950", "1955", "1954", "1961", "1948"], "correct": 0, "type": "Anno"}, {"num": 1811, "question": "In quale anno si tenne in Italia il primo\nreferendum abrogativo?", "answers": ["Nel 1974", "Nel 1933", "Nel 1984", "Nel 1980", "Nal 1978"], "correct": 0, "type": "Anno"}, {"num": 1813, "question": "In quale anno avvenne la conquista italiana\ndella Libia?", "answers": ["1911-1912", "1950-1953", "1916-1918", "1935-1936", "1944-1945"], "correct": 0, "type": "Periodo"}, {"num": 1814, "question": "Il decreto «salva interessi», dichiarato\nincostituzionale nell'ottobre del 2000, che si\nprefiggeva l'obbiettivo di risolvere il contenzioso\nsugli interessi bancari addebitati dagli istituti di\ncredito  ogni trimestre invece che ogni dodici mesi,\nfu emanato da quale Governo?", "answers": ["Il Governo D'Alema nell'agosto del 1999", "Il Governo Prodi nell'ottobre del 1999", "C Il Governo Ciampi nel settembre 1998", "Il Governo Berlusconi nel gennaio 2000", "Il Governo Renzi nel settembre del 1999"], "correct": 0, "type": "Mese/anno"}, {"num": 1817, "question": "Vittorio Emanuele II fu proclamato Re d'Italia\nnel:", "answers": ["1861", "1871", "1837", "1975", "1866"], "correct": 0, "type": "Anno"}, {"num": 1827, "question": "Papa Giovanni XXIII, morì nel:", "answers": ["1963", "1967", "1955", "1959", "1973"], "correct": 0, "type": "Anno"}, {"num": 1828, "question": "In quale anno le truppe italiane conquistarono\nGorizia nel corso della prima guerra mondiale?", "answers": ["1916", "1923", "1932", "1935", "1933"], "correct": 0, "type": "Anno"}, {"num": 1841, "question": "In quale anno avvenne la morte di  Saddam\nHussein?", "answers": ["2006", "2010", "2004", "2007", "2009"], "correct": 0, "type": "Anno"}, {"num": 1846, "question": "Le truppe statunitensi si ritirarono dal\nVietnam nel:", "answers": ["1975", "1985", "1970", "1965", "1973"], "correct": 0, "type": "Anno"}, {"num": 1849, "question": "La battaglia di Dogali avvenne nel:", "answers": ["26 gennaio 1887", "20 dicembre 1887", "26 gennaio 1890", "17 gennaio 1889", "25 gennaio 1885"], "correct": 0, "type": "Data completa"}, {"num": 1853, "question": "In Italia la \"Secessione dell'Aventino\"\navvenne:", "answers": ["nel 1924", "nel 1934", "nel 1935", "nel 1932", "nel 1940"], "correct": 0, "type": "Anno"}, {"num": 1855, "question": "Il primo sciopero generale nazionale della\nstoria d'italia si ebbe:", "answers": ["nel 1904", "nel 1910", "nel 1898", "nel 1909", "nel 1915"], "correct": 0, "type": "Anno"}, {"num": 1863, "question": "Quando fu  processato  Adolf Eichmann, ex\nSS, e dove?", "answers": ["Fu processato a Gerusalemme, nel 1961", "Fu processato a Norimberga,nel 1945", "Fu processato a Tel Aviv, nel 1945", "Fu processato alla Corte Internazionale dell'Aia, nel\n1970", "Fu processato in Germania, dopo la Seconda guerra\nmondiale"], "correct": 0, "type": "Anno"}, {"num": 1866, "question": "In quale mese e quale anno le truppe alleate\nliberarono Roma?", "answers": ["Nel Giugno 1944", "Nel Maggio 1945", "Nel Novembre 1946", "Nel dicembre 1945", "Nel Giugno 1946"], "correct": 0, "type": "Mese/anno"}, {"num": 1869, "question": "In quale anno ebbe inizio la Rivoluzione\nFrancese?", "answers": ["1789", "1795", "1796", "1799", "1790"], "correct": 0, "type": "Anno"}, {"num": 1871, "question": "In quale mese e quale anno fu compiuta la\nstrage della Stazione di Bologna?", "answers": ["Nell'agosto 1980", "Nell'ottobre 1986", "Nel dicembre 1973", "Nel dicembre 1988", "Nel settembre 1981"], "correct": 0, "type": "Mese/anno"}, {"num": 1872, "question": "Completare la seguente frase: \" Il trattato per\nil bando degli esperimenti di armi nucleari\nnell'atmosfera, nello spazio cosmico e negli spazi\nsubacquei (Treaty banning nuclear weapon tests in\nthe atmosphere, in outer space, and under water),\nratificato da Gran Bretagna, Urss e Usa,  è stato\nsottoscritto nel ... a ...\"", "answers": ["1963, Mosca", "1968, Washington", "1958, Ginevra", "1971, Londra", "1959, Bruxelles"], "correct": 0, "type": "Anno"}, {"num": 1884, "question": "Completare la seguente frase: \"La situazione\ndi stallo fra Israele e i paesi confinanti fu interrotta\ndall’attacco improvviso lanciato da Egitto e Siria il 6\nottobre 1973 contro Israele nel giorno della festività\nebraica del Kippur. La guerra del Kippur ...\"", "answers": ["Sebbene vinta, rappresentò un trauma per la società\nisraeliana, infrangendo l’immagine di sicurezza\nacquisita nel 1967", "Fu poco sentita dalla popolazione e non ebbe rifessi\nnel quadro politico", "Con la conseguente vittoria d’Israele, rafforzò ancor\ndi più l’inossidabile partito laburista", "Ebbe come conseguenza della netta sconfitta\nd’Israele le immediate dimissioni di Meir", "Fu una terribile sconfitta, traumatica, che portò al\nmalcontento della popolazione e ad una rivolta\nrepressa nel sangue"], "correct": 0, "type": "Anno"}, {"num": 1887, "question": "Il 15 maggio di quale anno ebbero luogo le\nelezioni al Congresso del popolo, che poi il 30\napprovò la costituzione della Repubblica\nDemocratica Tedesca (Deutsche Demokratische\nRepublik, DDR)?", "answers": ["1949", "1948", "1950", "1951", "1953"], "correct": 0, "type": "Anno"}, {"num": 1906, "question": "\"Leone Marino\", nome in codice per quale\noperazione militare? E quando?", "answers": ["E' il nome in codice che si è dato all'invasione\nmarittima, ipotetica, dell'Inghilterra da parte della\nGermania, nel 1940.", "E' il nome in codice per definire l'attacco alla\nFrancia, da parte della Germania nazista, nel 1941", "E' il nome in codice dell'operazione militare nella\nNorvegia collaborazionista, da parte dei tedeschi, nel\n'43", "Nome in codice che si utilizza per definire l'\noperazione di invasione della Polonia, nel '39", "Nome in codice per indicare un'operazione di\nspionaggio da parte dei nazisti, nel 1944"], "correct": 0, "type": "Anno"}, {"num": 1911, "question": "Che cos'è il Viet Minh, che, in Indocina,\nespresse la sua opposizione alla Francia?", "answers": ["Un movimento di resistenza comunista ai\ngiapponesi, che nel settembre del 1945 dichiarò\nl'indipendenza del Vietnam", "Un'organizzazione vietnamita guidata da Ho chi\nMinh, costituita nel 1945, di ispirazione comunista", "Partito Nazionalista Vietnamita fondato nel 1913 da\nSuan Yat-sen, che avviò un programma di\nmodernizzazione prima di  portare il Paese alla guerra\ncon il Giappone", "Comunisti del Vietnam meridionale, attivi dal 1957\nall’interno del Fronte di liberazione nazionale nella\nlunga lotta contro il governo sudvietnamita e le forze\nesterne, soprattutto statunitensi, che lo appoggiavano", "Un generale dell'Indocina"], "correct": 0, "type": "Mese/anno"}, {"num": 1914, "question": "presidente della Repubblica Popolare Cinese,\nMao Zedong, lanciò la politica del “grande balzo in\navanti\", che mirava da un lato a intensificare la\nproduzione agricola, dall'altro a creare un'industria\npesante, nell'anno…", "answers": ["1958", "1956", "1952", "1962", "1968"], "correct": 0, "type": "Anno"}, {"num": 1919, "question": "Perché l' \"Operazione Barbarossa\" era\ndestinata a fallire? In quale anni avvenne?", "answers": ["Perché Hitler aveva sottovalutato la forza di\nresistenza delle armate sovietiche e i rigori dell'inverno\nrusso. Avvenne tra il 1941 e il 1942", "Perché i sovietici si erano alleati con i polacchi, negli\nanni 1941-42", "Perché l'esercito tedesco era troppo esiguo e mal\nequipaggato, negli anni '40-41", "Perché la Germania aveva fatto un patto segreto\ncon la Francia, contro l'URSS, nel 1939", "Perché l'Italia si rifiutò di mandare le sue truppe, nel\n1940"], "correct": 0, "type": "Periodo"}, {"num": 1927, "question": "Quando fu assassinato Alessandro I re di\nIugoslavia, insieme con il ministro degli Esteri\nfrancese Barthou, a  Marsiglia?", "answers": ["Il 9 ottobre 1934", "Il 29 ottobre 1933", "Il 10 gennaio 1936", "Il 16 novembre 1935", "Il 18 novembre 1932"], "correct": 0, "type": "Data completa"}, {"num": 1930, "question": "Che cos'è il Trattato sulla messa al bando\nparziale degli esperimenti nucleari?", "answers": ["È un accordo firmato da Gran Bretagna, URSS e\nUSA nel 1963, che impegnava gli Stati a rinunciare agli\nesperimenti nucleari nell’atmosfera", "È un accordo firmato nel 1968 che prevede che gli\nStati in possesso di armamenti nucleari si impegnino a\nnon cedere a terzi materiale fissile e tecnologia\nnucleare", "Entrato in vigore il 5 marzo 1970, proibisce la\nproliferazione di armi nucleari in “nuovi” Paesi", "È un accordo firmato da URSS e USA nel 1968, che\nimpegnava gli Stati a rinunciare a tutti gli esperimenti\nnucleari (atmosfera-sotterranei)", "È un accordo firmato da URSS e USA nel 1971, che\nimpegnava gli Stati a rinunciare alla produzione di\narmamenti nucleari"], "correct": 0, "type": "Anno"}, {"num": 1933, "question": "Quando avvenne la battaglia di Stalingrado e\ncosa determinò?", "answers": ["Tra il 1942 e il 1943, a Stalingrado, si combatte\nun'aspra battaglia,che si conclude con la vittoria dei\nsovietici ed è la prima, grande  sconfitta della Germania\nnazista.", "Tra il '40 e il '41, a Stalingrado, si fronteggiano\nnazisti e fascisti. Vincono i nazisti e si determina\nun'indubbia loro superiorià militare.", "Nella battaglia di Stalingrado, tra il '43 e il '44,\navvengono aspri combattimenti tra l'Asse e gli Alleati.\nSi determina la vittoria dell'Asse.", "La battaglia di Stalingrado fu decisiva perché tra il\n'44 e il '45 definì l'esito della Seconda guerra\nmondiale,con la vittoria dell'Asse", "Determinò l'entrata in guerra del Giappone, nel 1941"], "correct": 0, "type": "Periodo"}, {"num": 1940, "question": "Gorbaciov divenne segretario generale del\nPCUS nel…", "answers": ["1985", "1981", "1987", "1989", "1990"], "correct": 0, "type": "Anno"}, {"num": 1949, "question": "Il fallito colpo di Stato \"conservatore\" contro\nGorbaciov, accadde nell'agosto…", "answers": ["1991", "1981", "1987", "1989", "1993"], "correct": 0, "type": "Anno"}, {"num": 1954, "question": "L'unico a ricoprire la carica di presidente\ndello Stato o presidente della Repubblica, prevista\ndalla prima costituzione della DDR (Deutsche\nDemokratische Republik), fu Wilhelm Pieck, eletto\ndal Parlamento provvisorio nel 1949 e poi rieletto\nfino alla sua morte, che avvenne nel...", "answers": ["1960.", "1965.", "1955.", "1970.", "1950."], "correct": 0, "type": "Anno"}, {"num": 1958, "question": "Macao viene restituita alla Cina nel…", "answers": ["1999", "1961", "1974", "1822", "1981"], "correct": 0, "type": "Anno"}, {"num": 1962, "question": "In Italia le leggi razziali vennero promulgate\nnel:", "answers": ["1938", "1932", "1945", "1928", "1935"], "correct": 0, "type": "Anno"}, {"num": 1963, "question": "In quale anno venne firmato il Patto di acciaio\nfra Italia e Germania?", "answers": ["1939", "1944", "1947", "1951", "1949"], "correct": 0, "type": "Anno"}, {"num": 1970, "question": "In quale anno ebbe inizio la guerra civile\nspagnola?", "answers": ["1936", "1930", "1939", "1942", "1925"], "correct": 0, "type": "Anno"}, {"num": 1980, "question": "Quando venne organizzata l'evasione dal\ncarcere di regina Coeli di Sandro Pertini e Giuseppe\nSaragat?", "answers": ["1944", "1942", "1960", "1950", "1952"], "correct": 0, "type": "Anno"}, {"num": 1981, "question": "Quando accadde l'impresa dannunziana di\nFiume?", "answers": ["Il 12 settembre 1919", "Il 12 settembre 1918", "Il 12 settembre 1917", "Il 12 settembre 1916", "Il 12 settembre 1920"], "correct": 0, "type": "Data completa"}, {"num": 1988, "question": "Completare la seguente frase: \"Gli eserciti di\nEgitto, Siria, Transgiordania, Iraq e Libano invasero\nil territorio del nuovo Stato d’Israele…\"", "answers": ["Il giorno successivo alla sua proclamazione\navvenuta il 14 maggio 1948", "Solamente ad un mese dalla sua proclamazione\navvenuta il 16 luglio 1947", "Il giorno stesso della sua proclamazione avvenuta il\n24 maggio 1950", "Il 2 aprile 1946", "Il 15 giugno 1951"], "correct": 0, "type": "Data completa"}, {"num": 1994, "question": "A seguito della sconfitta della capacità\nmilitare irachena, iniziò la fase \"post conflitto\"\ndell'Operazione \"Iraq Freedom\", che si poneva\ncome obiettivo la creazione delle condizioni\nindispensabili allo sviluppo politico, sociale ed\neconomico dell'Iraq. Siamo nel maggio di quale\nanno?", "answers": ["2003", "2001", "2000", "2002", "2004"], "correct": 0, "type": "Anno"}, {"num": 1999, "question": "La crisi di Cuba si apre quando dei voli di\nricognizione compiuti da U-2 americani su Cuba\nrivelano che i sovietici stanno installando basi\nmissilistiche. Le basi non sono ancora operative,\nma i missili con testate nucleari a raggio medio e\nintermedio, una volt installati, saranno in grado di\ncolpire le principali città della costa orientale degli\nUSA. In che anno siamo?", "answers": ["Ottobre 1962.", "Gennaio 1961.", "Dicembre 1963.", "Settembre 1964.", "Novembre 1965."], "correct": 0, "type": "Mese/anno"}, {"num": 2002, "question": "Nel _______ avvenne la strage di Capaci.", "answers": ["1992", "1994", "1990", "1995", "1989"], "correct": 0, "type": "Anno"}];
+const $=id=>document.getElementById(id);
+const SETTINGS_KEY='storia2026-settings-v3';
+const STATS_KEY='storia2026-question-stats-v1';
+const AUTO_NEXT_DEFAULT_KEY='storia2026-autonext-default-v1';
+
+const SESSION_ARCHIVE_KEY='storia2026-session-archive-v1';
+let currentSessionId='', currentSessionSaved=false;
+function createSessionId(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
+function loadSessionArchive(){ try{ const value=JSON.parse(localStorage.getItem(SESSION_ARCHIVE_KEY)||'[]'); return Array.isArray(value)?value:[]; }catch(_e){ return []; } }
+function saveSessionArchive(items){ try{ localStorage.setItem(SESSION_ARCHIVE_KEY,JSON.stringify(items.slice(0,100))); }catch(_e){} }
+function formatSessionDate(iso){ try{ return new Intl.DateTimeFormat('it-IT',{dateStyle:'medium',timeStyle:'short'}).format(new Date(iso)); }catch(_e){ return iso; } }
+function saveCompletedSession(){
+  if(isErrorReview || currentSessionSaved || !pool.length) return;
+  const answers=pool.map((q,index)=>{ const h=history[index]||null; return {num:q.num,type:q.type||'',question:q.question,status:!h?'unanswered':(h.isCorrect?'correct':'wrong'),selected:h?.selected?.txt||'',correct:h?.correctChoice?.txt||q.answers[q.correct]}; });
+  const correct=answers.filter(a=>a.status==='correct').length, wrong=answers.filter(a=>a.status==='wrong').length, unanswered=answers.filter(a=>a.status==='unanswered').length;
+  const record={id:currentSessionId||createSessionId(),finishedAt:new Date().toISOString(),mode,modeLabel:mode==='studio'?'Studio':'Simulazione',total:pool.length,correct,wrong,unanswered,percentage:Math.round((correct/pool.length)*100),answers,errorNums:answers.filter(a=>a.status==='wrong').map(a=>a.num)};
+  const items=loadSessionArchive().filter(item=>item.id!==record.id); items.unshift(record); saveSessionArchive(items); currentSessionSaved=true; renderSessionArchive();
+}
+function openSessionArchive(){ clearAutoNextTimer(); $('setup').classList.add('hide'); $('quiz').classList.add('hide'); $('results').classList.add('hide'); $('archiveCard').classList.add('hide'); $('sessionArchiveCard').classList.remove('hide'); renderSessionArchive(); window.scrollTo({top:0,behavior:'smooth'}); }
+function closeSessionArchive(){ $('sessionArchiveCard').classList.add('hide'); $('archiveCard').classList.remove('hide'); $('setup').classList.remove('hide'); window.scrollTo({top:0,behavior:'smooth'}); }
+function clearSessionArchive(){ if(!confirm('Vuoi eliminare tutta la cronologia delle simulazioni e degli studi effettuati?')) return; saveSessionArchive([]); renderSessionArchive(); }
+function toggleSessionDetail(id){ const el=$(`sessionDetail-${id}`); if(el) el.classList.toggle('hide'); }
+function repeatArchivedErrors(id){ const record=loadSessionArchive().find(item=>item.id===id); if(!record || !record.errorNums?.length){ alert('Questa simulazione non contiene errori da ripetere.'); return; } const nums=new Set(record.errorNums.map(String)); quizErrorQuestions=DATA.filter(q=>nums.has(String(q.num))); if(!quizErrorQuestions.length){ alert('Le domande di questa simulazione non sono più disponibili.'); return; } $('sessionArchiveCard').classList.add('hide'); $('archiveCard').classList.remove('hide'); isErrorReview=true; startErrorReview(); }
+function deleteSessionRecord(id){ if(!confirm('Eliminare questa simulazione dalla cronologia?')) return; saveSessionArchive(loadSessionArchive().filter(item=>item.id!==id)); renderSessionArchive(); }
+function renderSessionArchive(){
+  if(!$('sessionArchiveList')) return;
+  const items=loadSessionArchive(); $('sessionArchiveSummary').textContent=`${items.length} ${items.length===1?'sessione salvata':'sessioni salvate'}`;
+  if(!items.length){ $('sessionArchiveList').innerHTML='<div class="session-empty">Non ci sono ancora simulazioni o sessioni di studio salvate.</div>'; return; }
+  $('sessionArchiveList').innerHTML=items.map((item,index)=>{ const details=(item.answers||[]).map(a=>`<div class="session-answer ${a.status}"><b>Domanda ${escapeHtml(a.num)} · ${escapeHtml(a.type||'')}</b><p>${escapeHtml(a.question||'')}</p>${a.status==='unanswered'?'<p><b>Non risposta</b></p>':`<p>Risposta data: <span style="color:${a.status==='correct'?'#bbf7d0':'#fecaca'}">${escapeHtml(a.selected||'')}</span></p><p>Risposta corretta: <span style="color:#bbf7d0">${escapeHtml(a.correct||'')}</span></p>`}</div>`).join(''); return `<div class="session-card"><div class="session-card-head"><div><div class="session-title">${escapeHtml(item.modeLabel||'Quiz')} n. ${items.length-index}</div><div class="session-time">${escapeHtml(formatSessionDate(item.finishedAt))}</div></div><div class="session-chip">${item.percentage||0}%</div></div><div class="session-meta"><span class="session-chip">Totale: ${item.total||0}</span><span class="session-chip good">Corrette: ${item.correct||0}</span><span class="session-chip bad">Sbagliate: ${item.wrong||0}</span><span class="session-chip warn">Non risposte: ${item.unanswered||0}</span></div><div class="session-actions"><button type="button" class="secondary" onclick="toggleSessionDetail('${item.id}')">Mostra tutte le risposte</button>${item.wrong>0?`<button type="button" onclick="repeatArchivedErrors('${item.id}')">Ripeti gli errori di questo quiz</button>`:''}<button type="button" class="danger-outline" onclick="deleteSessionRecord('${item.id}')">Elimina</button></div><div id="sessionDetail-${item.id}" class="session-detail hide">${details||'<div class="session-empty">Nessun dettaglio disponibile.</div>'}</div></div>`; }).join('');
+}
+
+const PREP_FILTER_IDS=['prepNonLeSai','prepNonRisposte'];
+const PREP_LABELS={nonLeSai:'Non le sai',nonRisposte:'Non risposte'};
+let pool=[], current=0, score=0, mistakes=[], history=[], selected=null, answered=false, mode='studio', currentChoices=[], questionStats={}, autoNextTimer=null, choiceOrders=[], quizErrorQuestions=[], isErrorReview=false, errorReviewRound=0, errorReviewLastCorrectPositions={};
+
+function shuffle(arr){const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function buildChoiceOrder(q){ const base=q.answers.map((txt,idx)=>({txt,correct:idx===q.correct,original:String.fromCharCode(65+idx)})); if(!isErrorReview) return shuffle(base); const key=String(q.num), previous=errorReviewLastCorrectPositions[key]; let order=shuffle(base); if(base.length>1 && previous!==undefined){ let attempts=0; while(order.findIndex(c=>c.correct)===previous && attempts<20){ order=shuffle(base); attempts++; } if(order.findIndex(c=>c.correct)===previous){ const currentPos=order.findIndex(c=>c.correct), swapPos=(currentPos+1)%order.length; [order[currentPos],order[swapPos]]=[order[swapPos],order[currentPos]]; } } errorReviewLastCorrectPositions[key]=order.findIndex(c=>c.correct); return order; }
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function clearAutoNextTimer(){ if(autoNextTimer){ clearTimeout(autoNextTimer); autoNextTimer=null; } }
+function setQuizChromeVisible(visible){ $('appHeader')?.classList.toggle('hide',!visible); $('appFooter')?.classList.toggle('hide',!visible); }
+function shouldAutoNext(){ return !!$('autoNext')?.checked; }
+function init(){
+  $('totalCount').textContent = DATA.length;
+  populateTypes();
+  initBlockRange();
+  questionStats=loadQuestionStats();
+  restoreSettings();
+  applyAutoNextDefault();
+  renderPreparationCard();
+  showArchive();
+  renderSessionArchive();
+  bindSettingPersistence();
+  postInitExtras();
+}
+function populateTypes(){ const set = new Set(DATA.map(q=>q.type||'Altro')); const order=['Anno','Data completa','Mese/anno','Periodo','Secolo','Altro']; const types=[...set].sort((a,b)=>order.indexOf(a)-order.indexOf(b)); const sel=$('typeFilter'); sel.innerHTML='<option value="all">Tutti i tipi</option>' + types.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join(''); }
+function clampBlockValue(value){ const n=Number(value); if(!Number.isFinite(n)) return 1; return Math.max(1,Math.min(DATA.length,Math.trunc(n))); }
+function initBlockRange(){ const max=DATA.length; document.querySelectorAll('.blockMax').forEach(el=>el.textContent=max); $('blockStart').max=max; $('blockEnd').max=max; $('blockStart').value=1; $('blockEnd').value=max; toggleBlockRange(); }
+function toggleBlockRange(){ const enabled=$('blockEnabled').checked; $('questionBlockCard').classList.toggle('is-disabled',!enabled); $('blockStart').disabled=!enabled; $('blockEnd').disabled=!enabled; updateBlockSummary(); saveSettings(); }
+function normalizeBlockRange(changed){ let start=clampBlockValue($('blockStart').value); let end=clampBlockValue($('blockEnd').value); if(start>end){ if(changed==='start') end=start; else start=end; } $('blockStart').value=start; $('blockEnd').value=end; updateBlockSummary(); saveSettings(); }
+function previewBlockRange(changed){ const raw=changed==='start' ? $('blockStart').value : $('blockEnd').value; if(raw==='') return; normalizeBlockRange(changed); }
+function adjustBlockValue(which,delta){ const id=which==='start'?'blockStart':'blockEnd'; $(id).value=clampBlockValue(Number($(id).value||1)+delta); normalizeBlockRange(which); }
+function updateBlockSummary(){ if(!$('blockEnabled').checked){ $('blockSummary').textContent='Blocco disattivato: verrà applicata l’impostazione Numero domande.'; return; } const start=clampBlockValue($('blockStart').value); const end=clampBlockValue($('blockEnd').value); const total=end-start+1; $('blockSummary').textContent=''; }
+
+function defaultQuestionStat(){ return {attempts:0,correct:0,wrong:0,streak:0,lastResult:null,lastSeenAt:''}; }
+function getQuestionKey(q){ return String(q.num); }
+function loadQuestionStats(){ try{ const raw=JSON.parse(localStorage.getItem(STATS_KEY)||'{}'); return raw && typeof raw==='object' ? raw : {}; }catch(_e){ return {}; } }
+function saveQuestionStats(){ try{ localStorage.setItem(STATS_KEY, JSON.stringify(questionStats)); }catch(_e){} }
+function cloneQuestionStat(q){ const key=getQuestionKey(q); return questionStats[key] ? JSON.parse(JSON.stringify(questionStats[key])) : null; }
+function restoreQuestionStat(q,snapshot){ const key=getQuestionKey(q); if(snapshot===null || snapshot===undefined) delete questionStats[key]; else questionStats[key]=JSON.parse(JSON.stringify(snapshot)); saveQuestionStats(); renderPreparationCard(); }
+function getStat(q){ const key=getQuestionKey(q); if(!questionStats[key]) questionStats[key]=defaultQuestionStat(); return questionStats[key]; }
+function recordQuestionResult(q,isCorrect){ const stat=getStat(q); stat.attempts=(stat.attempts||0)+1; if(isCorrect){ stat.correct=(stat.correct||0)+1; stat.streak=stat.streak>0 ? stat.streak+1 : 1; stat.lastResult='correct'; } else { stat.wrong=(stat.wrong||0)+1; stat.streak=stat.streak<0 ? stat.streak-1 : -1; stat.lastResult='wrong'; } stat.lastSeenAt=new Date().toISOString(); saveQuestionStats(); renderPreparationCard(); }
+function classifyQuestion(q){ const s=getStat(q); const attempts=Number(s.attempts||0), correct=Number(s.correct||0), wrong=Number(s.wrong||0), streak=Number(s.streak||0); if(attempts===0) return 'nonRisposte'; const accuracy=attempts ? correct/attempts : 0; if(correct===0 || (wrong>=2 && accuracy<0.5 && streak<0) || s.lastResult==='wrong') return 'nonLeSai'; return 'risposte'; }
+function getPreparationCounts(){ const counts={risposte:0,nonLeSai:0,nonRisposte:0}; DATA.forEach(q=>{ counts[classifyQuestion(q)]++; }); return counts; }
+function renderPreparationCard(){ const counts=getPreparationCounts(); const total=DATA.length || 1; $('prepCountAll').textContent=DATA.length; $('prepCountNonLeSai').textContent=counts.nonLeSai; $('prepCountNonRisposte').textContent=counts.nonRisposte; $('prepBarNonLeSai').style.width=`${(counts.nonLeSai/total)*100}%`; $('prepBarNonRisposte').style.width=`${(counts.nonRisposte/total)*100}%`; const viste=DATA.length-counts.nonRisposte; let selected='Tutte'; if(!$('prepAll').checked){ const levels=getSelectedPreparationLevels(); selected=levels.map(level=>PREP_LABELS[level]).join(', '); } $('prepSummary').textContent=`Statistiche salvate su ${viste} ${viste===1?'domanda':'domande'}; ${counts.nonRisposte} ancora senza risposta. Filtro attivo: ${selected}.`; updatePreparationSelectionUI(); }
+function getSelectedPreparationLevels(){ if($('prepAll')?.checked) return null; ensurePreparationSelection(); return PREP_FILTER_IDS.filter(id=>$(id)?.checked).map(id=>({prepNonLeSai:'nonLeSai',prepNonRisposte:'nonRisposte'})[id]); }
+function ensurePreparationSelection(){ if($('prepAll')?.checked){ PREP_FILTER_IDS.forEach(id=>{$(id).checked=false;}); return; } const checked=PREP_FILTER_IDS.filter(id=>$(id)?.checked); if(checked.length===0){ $('prepAll').checked=true; PREP_FILTER_IDS.forEach(id=>{$(id).checked=false;}); } }
+function updatePreparationSelectionUI(){ ensurePreparationSelection(); document.querySelectorAll('[data-prep-option]').forEach(el=>{ const input=el.querySelector('input'); el.classList.toggle('is-active', !!input?.checked); }); }
+function handlePreparationChange(id){ if(id==='prepAll'){ if($('prepAll').checked){ PREP_FILTER_IDS.forEach(pid=>$(pid).checked=false); } else if(PREP_FILTER_IDS.every(pid=>!$(pid).checked)){ $('prepAll').checked=true; } } else { if($(id).checked) $('prepAll').checked=false; if(PREP_FILTER_IDS.every(pid=>!$(pid).checked)) $('prepAll').checked=true; } updatePreparationSelectionUI(); renderPreparationCard(); saveSettings(); }
+function selectAllPreparation(){ $('prepAll').checked=true; PREP_FILTER_IDS.forEach(id=>$(id).checked=false); updatePreparationSelectionUI(); renderPreparationCard(); saveSettings(); }
+function resetPreparationStats(){ if(!confirm('Vuoi azzerare tutte le statistiche di preparazione?')) return; questionStats={}; saveQuestionStats(); renderPreparationCard(); showArchive(); alert('Statistiche azzerate. Tutte le domande sono tornate in "Non risposte".'); }
+function getLevelPill(level){ if(level==='risposte') return ''; const label=PREP_LABELS[level]||level; const cls={nonLeSai:'level-non-le-sai',nonRisposte:'level-non-risposte'}[level]||''; return `<span class="pill ${cls}">${escapeHtml(label)}</span>`; }
+
+function applyBaseFilters(arr){ let out=[...arr]; if($('blockEnabled').checked){ normalizeBlockRange(); const start=clampBlockValue($('blockStart').value); const end=clampBlockValue($('blockEnd').value); out=out.slice(start-1,end); } const type=$('typeFilter').value; const term=$('keyword').value.trim().toLowerCase(); if(type !== 'all') out=out.filter(q=>(q.type||'Altro')===type); if(term) out=out.filter(q=>(q.question+' '+q.answers.join(' ')+' '+q.num+' '+(q.type||'')).toLowerCase().includes(term)); return out; }
+function makePool(){ let arr=applyBaseFilters(DATA); const selectedLevels=getSelectedPreparationLevels(); if(selectedLevels) arr=arr.filter(q=>selectedLevels.includes(classifyQuestion(q))); return shuffle(arr); }
+function startQuiz(){ setQuizChromeVisible(false); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); currentSessionId=createSessionId(); currentSessionSaved=false; isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; errorReviewLastCorrectPositions={}; updateErrorReviewUI(); pool=makePool(); if(pool.length===0){alert('Nessuna domanda trovata con questi filtri. Controlla anche il livello di preparazione selezionato.');return;} current=0; score=0; mistakes=[]; history=[]; choiceOrders=[]; selected=null; answered=false; mode=$('mode').value; $('setup').classList.add('hide'); $('quiz').classList.remove('hide'); $('results').classList.add('hide'); renderQuestion(); }
+function answeredCount(){ return history.filter(Boolean).length; }
+function recalculateSession(){ const answeredHistory=history.filter(Boolean); score=answeredHistory.filter(h=>h.isCorrect).length; mistakes=answeredHistory.filter(h=>!h.isCorrect).map(h=>({q:h.q,selected:h.selected,correctChoice:h.correctChoice})); }
+function renderQuestion(){
+  clearAutoNextTimer(); answered=false; selected=null;
+  const q=pool[current];
+  if(!choiceOrders[current]) choiceOrders[current]=buildChoiceOrder(q);
+  currentChoices=choiceOrders[current];
+  const saved=history[current]||null;
+  $('progressText').textContent=`Domanda ${current+1} di ${pool.length}`;
+  $('scoreText').textContent=`Punteggio: ${score}/${answeredCount()}`;
+  $('progress').style.width=`${((current+1)/pool.length)*100}%`;
+  $('sourceNum').textContent=`Domanda originale n. ${q.num}`;
+  $('question').textContent=q.question;
+  const box=$('answers'); box.innerHTML='';
+  currentChoices.forEach((c,i)=>{ const btn=document.createElement('button'); btn.className='answer'; btn.innerHTML=`<span class="kbd">${i+1}</span> ${escapeHtml(c.txt)}`; btn.onclick=()=>chooseAnswer(i); box.appendChild(btn); });
+  $('feedback').classList.add('hide');
+  if(saved){
+    answered=true; selected=saved.selectedIndex;
+    [...document.querySelectorAll('.answer')].forEach((btn,idx)=>{ btn.classList.add('disabled'); if(currentChoices[idx].correct)btn.classList.add('correct'); if(idx===saved.selectedIndex && !saved.isCorrect)btn.classList.add('wrong'); });
+    if(mode==='studio'){
+      $('feedback').className='resultBox '+(saved.isCorrect?'ok':'ko');
+      $('feedback').innerHTML=saved.isCorrect?'✅ Risposta corretta. Tocca di nuovo la risposta selezionata per annullarla.':`❌ Risposta sbagliata. Corretta: <b>${escapeHtml(saved.correctChoice.txt)}</b><br><span class="small">Tocca di nuovo la risposta selezionata per annullarla e sceglierne un’altra.</span>`;
+      $('feedback').classList.remove('hide');
+    }
+  }
+  updateNavigationButtons(); updateErrorReviewUI();
+}
+function updateNavigationButtons(){
+  $('prevBtn').disabled=current===0;
+  $('nextBtn').disabled=!answered;
+  $('nextBtn').textContent=current===pool.length-1?'Completa quiz':'Avanti →';
+}
+function chooseAnswer(i){
+  clearAutoNextTimer();
+  if(answered){
+    if(selected===i) deselectAnswer();
+    return;
+  }
+  selected=i; answered=true;
+  const q=pool[current], correct=currentChoices[i].correct, correctChoice=currentChoices.find(c=>c.correct);
+  const statBefore=cloneQuestionStat(q);
+  history[current]={q,selected:currentChoices[i],selectedIndex:i,correctChoice,isCorrect:correct,statBefore};
+  recordQuestionResult(q,correct); recalculateSession();
+  [...document.querySelectorAll('.answer')].forEach((btn,idx)=>{btn.classList.add('disabled');if(currentChoices[idx].correct)btn.classList.add('correct');if(idx===i&&!correct)btn.classList.add('wrong');});
+  if(mode==='studio'){
+    $('feedback').className='resultBox '+(correct?'ok':'ko');
+    $('feedback').innerHTML=correct?(shouldAutoNext()?'✅ Esatto. Passo automaticamente alla prossima domanda…<br><span class="small">Tocca di nuovo la risposta per annullarla.</span>':'✅ Esatto.<br><span class="small">Tocca di nuovo la risposta per annullarla.</span>'):`❌ Sbagliata. Risposta corretta: <b>${escapeHtml(correctChoice.txt)}</b><br><span class="small">Tocca di nuovo la risposta selezionata per annullarla e sceglierne un’altra.</span>`;
+    $('feedback').classList.remove('hide');
+  }
+  $('scoreText').textContent=`Punteggio: ${score}/${answeredCount()}`; updateNavigationButtons();
+  if(correct&&shouldAutoNext()) autoNextTimer=setTimeout(()=>{autoNextTimer=null;nextQuestion();},650);
+}
+function deselectAnswer(){
+  clearAutoNextTimer();
+  const saved=history[current];
+  if(!saved) return;
+  restoreQuestionStat(saved.q,saved.statBefore);
+  history[current]=null;
+  recalculateSession();
+  answered=false; selected=null;
+  renderQuestion();
+}
+function previousQuestion(){ clearAutoNextTimer(); hideCompletionScreen(); if(current>0){current--;renderQuestion();} }
+function nextQuestion(){
+  clearAutoNextTimer();
+  if(!answered){alert('Seleziona una risposta prima di continuare.');return;}
+  if(current<pool.length-1){current++;renderQuestion();}else showCompletionScreen();
+}
+function showCompletionScreen(){
+  clearAutoNextTimer();
+  if(isErrorReview){ finishQuiz(true); return; }
+  const remaining=Math.max(0,pool.length-answeredCount());
+  $('completionTitle').textContent=remaining===0?'Hai completato tutte le domande':'Vuoi terminare il quiz adesso?';
+  $('completionText').textContent=remaining===0
+    ? 'Puoi terminare il quiz e vedere il risultato oppure tornare indietro per controllare le risposte e rivedere gli errori.'
+    : `Hai ancora ${remaining} ${remaining===1?'domanda senza risposta':'domande senza risposta'}. Se termini ora, verranno conteggiate come non risposte nel risultato finale.`;
+  $('completionOverlay').classList.remove('hide');
+}
+function requestFinishQuiz(){
+  clearAutoNextTimer();
+  if(isErrorReview){ stopErrorReviewAndReturn(); return; }
+  showCompletionScreen();
+}
+function hideCompletionScreen(){ $('completionOverlay').classList.add('hide'); }
+function returnToReview(){
+  hideCompletionScreen();
+  const wrongIndexes=history.map((h,i)=>h&&!h.isCorrect?i:-1).filter(i=>i>=0);
+  if(wrongIndexes.length) current=wrongIndexes[wrongIndexes.length-1]; else current=Math.max(0,pool.length-2);
+  renderQuestion();
+}
+function uniqueQuestionsByNum(items){ const seen=new Set(); return items.filter(q=>{ const key=String(q.num); if(seen.has(key)) return false; seen.add(key); return true; }); }
+function finishQuiz(forceFinish=false){
+  clearAutoNextTimer(); hideCompletionScreen();
+  if(answeredCount()<pool.length && !forceFinish){ showCompletionScreen(); return; }
+  if(isErrorReview){
+    const roundScore=score, roundTotal=pool.length;
+    errorReviewRound++;
+    showErrorReviewRoundComplete(roundScore,roundTotal);
+    return;
+  }
+  quizErrorQuestions=uniqueQuestionsByNum(mistakes.map(m=>m.q));
+  showResults();
+  if(quizErrorQuestions.length>0) showErrorReviewOffer();
+}
+function showResults(){ setQuizChromeVisible(true); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); hideCompletionScreen(); saveCompletedSession(); $('quiz').classList.add('hide'); $('results').classList.remove('hide'); const unanswered=Math.max(0,pool.length-answeredCount()); const pct=Math.round((score/pool.length)*100); $('finalScore').textContent=`${score}/${pool.length}`; $('finalPct').textContent=`${pct}%`; $('mistakeCount').textContent=mistakes.length; let msg = pct>=90 ? 'Fortissimo: le date stanno entrando bene.' : pct>=75 ? 'Buono: ripassa gli errori e sei messo bene.' : pct>=60 ? 'Discreto: devi fissare meglio anni e periodi.' : 'Da ripassare: rifai soprattutto gli errori e cerca le parole chiave storiche.'; $('finalMsg').textContent=unanswered>0 ? `${msg} Hai terminato con ${unanswered} ${unanswered===1?'domanda non risposta':'domande non risposte'}.` : msg; const box=$('review'); if(mistakes.length===0){box.innerHTML='<div class="resultBox ok">Nessun errore. Perfetto.</div>';} else box.innerHTML=mistakes.map(m=>`<div class="reviewItem"><b>Domanda ${m.q.num} · ${escapeHtml(m.q.type||'')}</b> ${getLevelPill(classifyQuestion(m.q))}<p>${escapeHtml(m.q.question)}</p><p>Hai scelto: <span style="color:#fecaca">${escapeHtml(m.selected.txt)}</span></p><p>Corretta: <span style="color:#bbf7d0">${escapeHtml(m.correctChoice.txt)}</span></p></div>`).join(''); showArchive(); }
+function showErrorReviewOffer(){
+  $('errorReviewTitle').textContent='Vuoi ripassare solo gli errori?';
+  $('errorReviewCount').textContent=quizErrorQuestions.length;
+  $('errorReviewText').textContent=`Hai sbagliato ${quizErrorQuestions.length} ${quizErrorQuestions.length===1?'domanda':'domande'} in questo quiz. Puoi ripetere solo queste domande tutte le volte che vuoi.`;
+  $('startErrorReviewBtn').classList.remove('hide');
+  $('repeatErrorReviewBtn').classList.add('hide');
+  $('viewErrorListBtn').classList.remove('hide');
+  $('stopErrorReviewBtn').textContent='Torna ai quiz normali';
+  $('errorReviewOverlay').classList.remove('hide');
+}
+function showErrorReviewRoundComplete(roundScore,roundTotal){
+  $('quiz').classList.add('hide');
+  $('errorReviewTitle').textContent='Giro di ripasso completato';
+  $('errorReviewCount').textContent=`${roundScore}/${roundTotal}`;
+  $('errorReviewText').textContent=roundScore===roundTotal?'Hai risposto correttamente a tutti gli errori di questo giro. Puoi ripeterli ancora per fissarli meglio oppure tornare ai quiz normali.':`In questo giro hai risposto correttamente a ${roundScore} domande su ${roundTotal}. Puoi ripetere di nuovo lo stesso gruppo di errori.`;
+  $('startErrorReviewBtn').classList.add('hide');
+  $('repeatErrorReviewBtn').classList.remove('hide');
+  $('viewErrorListBtn').classList.add('hide');
+  $('stopErrorReviewBtn').textContent='Smetti e torna ai quiz normali';
+  $('errorReviewOverlay').classList.remove('hide');
+}
+function closeErrorReviewOverlay(){ $('errorReviewOverlay').classList.add('hide'); }
+function prepareErrorReviewRound(){
+  setQuizChromeVisible(false);
+  if(quizErrorQuestions.length===0){ alert('Non ci sono errori da ripetere.'); return; }
+  closeErrorReviewOverlay(); hideCompletionScreen(); isErrorReview=true; errorReviewRound=Math.max(1,errorReviewRound+1);
+  pool=shuffle([...quizErrorQuestions]); current=0; score=0; mistakes=[]; history=[]; choiceOrders=[]; selected=null; answered=false; mode=$('mode').value;
+  $('setup').classList.add('hide'); $('results').classList.add('hide'); $('quiz').classList.remove('hide');
+  updateErrorReviewUI(); renderQuestion();
+}
+function startErrorReview(){ errorReviewRound=0; errorReviewLastCorrectPositions={}; prepareErrorReviewRound(); }
+function repeatErrorReviewRound(){ prepareErrorReviewRound(); }
+function stopErrorReviewAndReturn(){
+  setQuizChromeVisible(true);
+  clearAutoNextTimer(); closeErrorReviewOverlay(); hideCompletionScreen(); isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[];
+  $('quiz').classList.add('hide'); $('results').classList.add('hide'); $('setup').classList.remove('hide');
+  updateErrorReviewUI(); renderPreparationCard(); showArchive();
+}
+function updateErrorReviewUI(){
+  const banner=$('reviewModeBanner'), exitBtn=$('reviewExitBtn');
+  if(banner) banner.classList.toggle('show',isErrorReview);
+  if(exitBtn) exitBtn.classList.toggle('show',isErrorReview);
+}
+function retryMistakes(){ clearAutoNextTimer(); hideCompletionScreen(); if(quizErrorQuestions.length===0) quizErrorQuestions=uniqueQuestionsByNum(mistakes.map(m=>m.q)); if(quizErrorQuestions.length===0){alert('Non hai errori da rifare.');return;} startErrorReview(); }
+function exportMistakes(){ const rows=[['numero','tipo','domanda','tua_risposta','risposta_corretta']]; mistakes.forEach(m=>rows.push([m.q.num,m.q.type||'',m.q.question,m.selected.txt,m.correctChoice.txt])); const csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='errori_date_storia_2026.csv'; a.click(); URL.revokeObjectURL(url); }
+function resetAll(){ setQuizChromeVisible(true); $('archiveCard')?.classList.remove('hide'); clearAutoNextTimer(); hideCompletionScreen(); closeErrorReviewOverlay(); isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; $('setup').classList.remove('hide'); $('quiz').classList.add('hide'); $('results').classList.add('hide'); updateErrorReviewUI(); renderPreparationCard(); showArchive(); }
+function showArchive(){ const term=($('archiveSearch')?.value||'').trim().toLowerCase(); let arr=[...DATA]; if(term) arr=arr.filter(q=>(q.question+' '+q.answers.join(' ')+' '+q.num+' '+(q.type||'')).toLowerCase().includes(term)); $('archiveCount').textContent=`${arr.length} domande visualizzate`; $('archive').innerHTML=arr.map(q=>{ const level=classifyQuestion(q); return `<div class="reviewItem"><b>n. ${q.num} · ${escapeHtml(q.type||'Data')}</b> ${getLevelPill(level)}<p>${escapeHtml(q.question)}</p><details><summary>Mostra risposta corretta</summary><p style="color:#bbf7d0"><b>${escapeHtml(q.answers[q.correct])}</b></p></details></div>`; }).join(''); }
+
+function applyAutoNextDefault(){
+  try{
+    if(localStorage.getItem(AUTO_NEXT_DEFAULT_KEY)!=='1'){
+      if($('autoNext')) $('autoNext').checked=true;
+      localStorage.setItem(AUTO_NEXT_DEFAULT_KEY,'1');
+      saveSettings();
+    }
+  }catch(_e){ if($('autoNext')) $('autoNext').checked=true; }
+}
+function saveSettings(){
+  try{
+    const settings={mode:$('mode').value,typeFilter:$('typeFilter').value,keyword:$('keyword').value,autoNext:$('autoNext').checked,blockEnabled:$('blockEnabled').checked,blockStart:$('blockStart').value,blockEnd:$('blockEnd').value,prepAll:$('prepAll').checked,prepNonLeSai:$('prepNonLeSai').checked,prepNonRisposte:$('prepNonRisposte').checked};
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+  }catch(_e){}
+}
+function restoreSettings(){
+  try{
+    const settings=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'null');
+    if(!settings){ normalizeBlockRange('end'); toggleBlockRange(); updatePreparationSelectionUI(); return; }
+    ['mode','typeFilter','keyword','blockStart','blockEnd'].forEach(id=>{if(settings[id]!==undefined && $(id))$(id).value=settings[id];});
+    if(settings.autoNext!==undefined && $('autoNext'))$('autoNext').checked=!!settings.autoNext;
+    if(settings.blockEnabled!==undefined)$('blockEnabled').checked=!!settings.blockEnabled;
+    ['prepAll','prepNonLeSai','prepNonRisposte'].forEach(id=>{ if(settings[id]!==undefined && $(id)) $(id).checked=!!settings[id]; });
+  }catch(_e){}
+  normalizeBlockRange('end');
+  toggleBlockRange();
+  updatePreparationSelectionUI();
+}
+function bindSettingPersistence(){
+  ['mode','typeFilter','keyword','autoNext','blockEnabled','blockStart','blockEnd','prepAll','prepNonLeSai','prepNonRisposte','archiveSearch'].forEach(id=>{
+    const el=$(id); if(!el)return; el.addEventListener('change',saveSettings); if(id==='keyword' || id==='archiveSearch') el.addEventListener('input', id==='archiveSearch' ? showArchive : saveSettings);
+  });
+}
+function postInitExtras(){}
+
+document.addEventListener('keydown',e=>{ if(e.repeat)return; if(!$('completionOverlay').classList.contains('hide')){ if(e.key==='Escape')returnToReview(); return; } if($('quiz').classList.contains('hide'))return; const key=e.key.toLowerCase(); const idx=['1','2','3','4','5'].includes(key)?Number(key)-1:-1; if(idx>=0&&idx<5)chooseAnswer(idx); if(key==='arrowleft')previousQuestion(); if(key==='arrowright'||key==='enter')nextQuestion(); });
+
+
+function isStandaloneApp(){return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;}
+function initInstallHint(){ const isAppleMobile=/iPhone|iPad|iPod/i.test(navigator.userAgent); let dismissed=false; try{dismissed=localStorage.getItem('storia2026-install-hint-dismissed')==='1';}catch(_e){} if(isAppleMobile && !isStandaloneApp() && !dismissed)$('installHint').classList.add('show'); }
+function dismissInstallHint(){ $('installHint').classList.remove('show'); try{localStorage.setItem('storia2026-install-hint-dismissed','1');}catch(_e){} }
+function updateConnectionStatus(){ const online=navigator.onLine; document.body.classList.toggle('is-offline',!online); if($('connectionText'))$('connectionText').textContent=online?'Disponibile offline dopo il primo caricamento':'Modalità offline attiva'; }
+function postInitExtras(){ initInstallHint(); updateConnectionStatus(); }
+window.addEventListener('online',updateConnectionStatus);
+window.addEventListener('offline',updateConnectionStatus);
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
+</script>
+</body>
+</html>
