@@ -644,13 +644,16 @@ let appRegistration=null;
 let waitingServiceWorker=null;
 let refreshingForUpdate=false;
 let updateNoticeDeferred=false;
+const APP_VERSION='2026.06.29.1700';
+const APP_VERSION_STORAGE_KEY='storia2026-installed-app-version';
+let remoteVersionAvailable=null;
 function isQuizCurrentlyOpen(){ return !!$('quiz') && !$('quiz').classList.contains('hide'); }
 function hasUnfinishedQuiz(){ try{return !!getIncompleteQuiz();}catch(_e){return false;} }
-function canShowUpdateNotice(){ return !isQuizCurrentlyOpen() && !hasUnfinishedQuiz(); }
+function canShowUpdateNotice(){ return !isQuizCurrentlyOpen(); }
 function hideUpdateUI(){ $('updateToast')?.classList.remove('show'); $('updateOverlay')?.classList.remove('show'); }
 function showUpdateNotice(worker){
   waitingServiceWorker=worker||appRegistration?.waiting||waitingServiceWorker||null;
-  if(!waitingServiceWorker)return;
+  if(!waitingServiceWorker && !remoteVersionAvailable)return;
   if(!canShowUpdateNotice()){
     updateNoticeDeferred=true;
     hideUpdateUI();
@@ -689,12 +692,39 @@ function applyAppUpdate(){
     hideUpdateUI();
     return;
   }
-  const worker=waitingServiceWorker||appRegistration?.waiting;
-  if(!worker){ closeUpdateOverlay(); appRegistration?.update().catch(()=>{}); return; }
   persistProgressBeforeReload();
   $('updateProgress')?.classList.add('show');
   $('updateButtons')?.classList.add('hide');
-  worker.postMessage({type:'SKIP_WAITING'});
+  const worker=waitingServiceWorker||appRegistration?.waiting;
+  if(worker){
+    worker.postMessage({type:'SKIP_WAITING'});
+    return;
+  }
+  if(appRegistration){
+    appRegistration.update().finally(()=>{
+      setTimeout(()=>location.reload(),900);
+    });
+  }else{
+    location.reload();
+  }
+}
+function checkRemoteAppVersion(){
+  if(!navigator.onLine)return Promise.resolve();
+  return fetch('./app-version.json?v='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}})
+    .then(r=>r.ok?r.json():null)
+    .then(data=>{
+      const remote=String(data?.version||'').trim();
+      if(!remote)return;
+      let installed='';
+      try{installed=localStorage.getItem(APP_VERSION_STORAGE_KEY)||APP_VERSION;}catch(_e){installed=APP_VERSION;}
+      if(remote!==installed){
+        remoteVersionAvailable=remote;
+        if(appRegistration) appRegistration.update().catch(()=>{});
+        showUpdateNotice(appRegistration?.waiting||waitingServiceWorker);
+      }else{
+        try{localStorage.setItem(APP_VERSION_STORAGE_KEY,remote);}catch(_e){}
+      }
+    }).catch(()=>{});
 }
 function watchServiceWorkerRegistration(reg){
   appRegistration=reg;
@@ -709,16 +739,30 @@ function watchServiceWorkerRegistration(reg){
 }
 function checkForAppUpdate(){ if(appRegistration && navigator.onLine) appRegistration.update().catch(()=>{}); }
 if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(watchServiceWorkerRegistration).catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(reg=>{
+    watchServiceWorkerRegistration(reg);
+    checkRemoteAppVersion();
+    setTimeout(checkForAppUpdate,1200);
+  }).catch(()=>{checkRemoteAppVersion();}));
+  navigator.serviceWorker.addEventListener('message',event=>{
+    if(event.data?.type==='UPDATE_READY'){
+      remoteVersionAvailable=event.data.version||remoteVersionAvailable||'new';
+      if(appRegistration) appRegistration.update().catch(()=>{});
+      showUpdateNotice(appRegistration?.waiting||waitingServiceWorker);
+    }
+  });
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     if(refreshingForUpdate)return;
     persistProgressBeforeReload();
+    if(remoteVersionAvailable){try{localStorage.setItem(APP_VERSION_STORAGE_KEY,remoteVersionAvailable);}catch(_e){}}
     refreshingForUpdate=true;
     location.reload();
   });
-  window.addEventListener('online',()=>setTimeout(checkForAppUpdate,800));
-  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') setTimeout(checkForAppUpdate,500); });
-  setInterval(checkForAppUpdate,15*60*1000);
+  window.addEventListener('online',()=>{setTimeout(checkForAppUpdate,500);setTimeout(checkRemoteAppVersion,700);});
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){setTimeout(checkForAppUpdate,350);setTimeout(checkRemoteAppVersion,600);} });
+  window.addEventListener('pageshow',()=>setTimeout(checkRemoteAppVersion,450));
+  setInterval(checkForAppUpdate,5*60*1000);
+  setInterval(checkRemoteAppVersion,3*60*1000);
 }
 
 </script>
