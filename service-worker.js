@@ -22,6 +22,12 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  
+  // Bypass service worker for Vercel Analytics requests
+  if (event.request.url.includes('/_vercel/insights')) {
+    return;
+  }
+  
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).then(response => {
       const copy = response.clone();
