@@ -50,6 +50,12 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 @media(max-width:780px){.prep-options{grid-template-columns:1fr}.prep-option.is-master{grid-column:auto}.prep-actions button{flex:1 1 170px}}
 
 
+.quiz-progress-card{margin-bottom:18px;padding:16px 16px 13px;border:1px solid rgba(71,85,105,.72);border-radius:19px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(17,24,39,.9));box-shadow:0 14px 34px rgba(2,6,23,.24),inset 0 1px 0 rgba(255,255,255,.025)}
+.quiz-progress-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.quiz-progress-eyebrow{color:#64748b;font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.quiz-progress-title{margin-top:3px;color:#f8fafc;font-size:1rem;font-weight:900}.quiz-score-pills{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.quiz-score-pill{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:7px 10px;border-radius:11px;border:1px solid transparent;font-weight:900;line-height:1}.quiz-score-pill strong{font-size:1rem}.quiz-score-pill .score-caption{font-size:.72rem;font-weight:800;opacity:.8}.quiz-score-pill.good{color:#bbf7d0;background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25)}.quiz-score-pill.bad{color:#fecaca;background:rgba(239,68,68,.11);border-color:rgba(239,68,68,.23)}
+.quiz-progress-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;color:#94a3b8}.quiz-progress-caption{font-size:.78rem;font-weight:850}.quiz-progress-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;font-size:.73rem;font-weight:750}.quiz-progress-legend span{display:inline-flex;align-items:center;gap:5px}.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.025)}.legend-dot.correct{background:#22c55e}.legend-dot.wrong{background:#ef4444}.legend-dot.unanswered{background:#64748b}
+.question-rail-shell{position:relative;margin-top:9px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:999px;background:rgba(2,6,23,.44);border:1px solid rgba(51,65,85,.7);box-shadow:inset 0 2px 8px rgba(0,0,0,.22)}.question-rail-shell::-webkit-scrollbar{display:none}.question-rail{--question-count:1;display:grid;grid-template-columns:repeat(var(--question-count),minmax(3px,1fr));align-items:center;gap:2px;min-width:max(100%,calc(var(--question-count) * 5px));padding:7px 8px}.question-marker{position:relative;width:100%;min-width:0!important;height:20px;min-height:20px!important;padding:0!important;border:0!important;border-radius:999px!important;background:transparent!important;color:transparent!important;box-shadow:none!important;transform:none!important;cursor:pointer;touch-action:manipulation}.question-marker:before{content:"";position:absolute;left:0;right:0;top:50%;height:7px;transform:translateY(-50%);border-radius:999px;background:#475569;box-shadow:inset 0 1px 1px rgba(255,255,255,.08),0 1px 3px rgba(0,0,0,.28);transition:height .14s ease,filter .14s ease,box-shadow .14s ease,transform .14s ease}.question-marker.correct:before{background:linear-gradient(180deg,#22c55e,#15803d)}.question-marker.wrong:before{background:linear-gradient(180deg,#ef4444,#b91c1c)}.question-marker.unanswered:before{background:linear-gradient(180deg,#64748b,#475569)}.question-marker.current:before{height:12px;filter:brightness(1.13);box-shadow:0 0 0 2px #e2e8f0,0 0 0 5px rgba(226,232,240,.1),0 4px 12px rgba(0,0,0,.36)}.question-marker:hover:before{height:11px;filter:brightness(1.16)}.question-marker:focus-visible{outline:2px solid #f8fafc!important;outline-offset:2px}.question-rail-hint{margin-top:7px;color:#64748b;font-size:.72rem;text-align:right}
+@media(max-width:680px){.quiz-progress-card{padding:14px 12px 11px}.quiz-progress-head{align-items:flex-start}.quiz-score-pill{min-height:31px;padding:6px 8px}.quiz-score-pill .score-caption{display:none}.quiz-progress-meta{align-items:flex-start}.quiz-progress-caption{display:none}.quiz-progress-legend{gap:9px;justify-content:flex-start}.question-rail{gap:2px;padding:7px 7px;min-width:max(820px,calc(var(--question-count) * 5px))}.question-rail-hint{text-align:left}}
+
 .quiz-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.quiz-nav button{min-width:130px}.quiz-nav button:disabled{opacity:.42;cursor:not-allowed;transform:none}
 .completion-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .completion-panel{width:min(620px,100%);border:1px solid #475569;border-radius:24px;background:linear-gradient(180deg,#1e293b,#0f172a);padding:34px;box-shadow:0 30px 100px rgba(0,0,0,.55);text-align:center}.completion-panel h2{margin:10px 0 8px;font-size:clamp(1.5rem,4vw,2.2rem)}.completion-panel p{color:#cbd5e1;line-height:1.55;margin:0 auto 22px;max-width:520px}.completion-icon{width:64px;height:64px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.55);color:#86efac;font-size:2rem;font-weight:900}.completion-actions{display:grid;gap:12px}.completion-actions button{width:100%;padding:14px 18px}
@@ -201,8 +207,27 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 </section>
 <section id="quiz" class="card hide">
   <div id="reviewModeBanner" class="review-mode-banner">Modalità ripasso errori: stai vedendo solo le domande sbagliate nel quiz appena concluso.</div>
-  <div class="meta"><span id="progressText"></span><span id="scoreText"></span></div>
-  <div class="progress-wrap"><div id="progress" class="progress"></div></div>
+  <div class="quiz-progress-card" aria-label="Stato delle domande del quiz">
+    <div class="quiz-progress-head">
+      <div>
+        <div class="quiz-progress-eyebrow">Progresso quiz</div>
+        <div id="progressText" class="quiz-progress-title"></div>
+      </div>
+      <div id="scoreText" class="quiz-score-pills" aria-live="polite"></div>
+    </div>
+    <div class="quiz-progress-meta">
+      <span class="quiz-progress-caption">Panoramica risposte</span>
+      <div class="quiz-progress-legend" aria-label="Legenda">
+        <span><i class="legend-dot correct"></i>Corretta</span>
+        <span><i class="legend-dot wrong"></i>Errata</span>
+        <span><i class="legend-dot unanswered"></i>Non risposta</span>
+      </div>
+    </div>
+    <div class="question-rail-shell">
+      <div id="questionRail" class="question-rail" role="navigation" aria-label="Vai a una domanda del quiz"></div>
+    </div>
+    <div class="question-rail-hint">Tocca un indicatore per aprire direttamente quella domanda.</div>
+  </div>
   <div style="margin-top:14px"><span id="sourceNum" class="qnum"></span></div>
   <div id="question" class="question"></div>
   <div id="answers" class="answers"></div>
@@ -465,8 +490,7 @@ function renderQuestion(){
   currentChoices=choiceOrders[current];
   const saved=history[current]||null;
   $('progressText').textContent=`Domanda ${current+1} di ${pool.length}`;
-  $('scoreText').textContent=`Punteggio: ${score}/${answeredCount()}`;
-  $('progress').style.width=`${((current+1)/pool.length)*100}%`;
+  updateScoreDisplay();
   $('sourceNum').textContent=`Domanda originale n. ${q.num}`;
   $('question').textContent=q.question;
   const box=$('answers'); box.innerHTML='';
@@ -481,11 +505,45 @@ function renderQuestion(){
       $('feedback').classList.remove('hide');
     }
   }
-  updateNavigationButtons(); updateErrorReviewUI();
+  renderQuestionRail(); updateNavigationButtons(); updateErrorReviewUI();
+}
+function updateScoreDisplay(){
+  const correct=score, wrong=Math.max(0,answeredCount()-score), box=$('scoreText');
+  if(!box)return;
+  box.innerHTML=`<span class="quiz-score-pill good" aria-label="${correct} risposte corrette"><span aria-hidden="true">✓</span><strong>${correct}</strong><span class="score-caption">corrette</span></span><span class="quiz-score-pill bad" aria-label="${wrong} risposte errate"><span aria-hidden="true">×</span><strong>${wrong}</strong><span class="score-caption">errate</span></span>`;
+}
+function questionStatusLabel(item){ return !item?'non risposta':(item.isCorrect?'risposta corretta':'risposta errata'); }
+function renderQuestionRail(){
+  const rail=$('questionRail');
+  if(!rail)return;
+  rail.style.setProperty('--question-count',String(Math.max(1,pool.length)));
+  const fragment=document.createDocumentFragment();
+  pool.forEach((q,index)=>{
+    const item=history[index]||null, state=!item?'unanswered':(item.isCorrect?'correct':'wrong');
+    const marker=document.createElement('button');
+    marker.type='button';
+    marker.className=`question-marker ${state}${index===current?' current':''}`;
+    marker.setAttribute('aria-label',`Domanda ${index+1} di ${pool.length}: ${questionStatusLabel(item)}`);
+    marker.title=`Domanda ${index+1} · ${questionStatusLabel(item)}`;
+    if(index===current)marker.setAttribute('aria-current','step');
+    marker.onclick=()=>goToQuestion(index);
+    fragment.appendChild(marker);
+  });
+  rail.replaceChildren(fragment);
+  requestAnimationFrame(()=>{
+    const active=rail.querySelector('.question-marker.current'), shell=rail.parentElement;
+    if(!active||!shell)return;
+    const target=Math.max(0,active.offsetLeft-(shell.clientWidth-active.offsetWidth)/2);
+    shell.scrollTo({left:target,behavior:'smooth'});
+  });
+}
+function goToQuestion(index){
+  if(index<0||index>=pool.length||index===current)return;
+  clearAutoNextTimer(); hideCompletionScreen(); current=index; renderQuestion();
 }
 function updateNavigationButtons(){
   $('prevBtn').disabled=current===0;
-  $('nextBtn').disabled=!answered;
+  $('nextBtn').disabled=false;
   $('nextBtn').textContent=current===pool.length-1?'Completa quiz':'Avanti →';
 }
 function chooseAnswer(i){
@@ -505,7 +563,7 @@ function chooseAnswer(i){
     $('feedback').innerHTML=correct?(shouldAutoNext()?'✅ Esatto. Passo automaticamente alla prossima domanda…<br><span class="small">Tocca di nuovo la risposta per annullarla.</span>':'✅ Esatto.<br><span class="small">Tocca di nuovo la risposta per annullarla.</span>'):`❌ Sbagliata. Risposta corretta: <b>${escapeHtml(correctChoice.txt)}</b><br><span class="small">Tocca di nuovo la risposta selezionata per annullarla e sceglierne un’altra.</span>`;
     $('feedback').classList.remove('hide');
   }
-  $('scoreText').textContent=`Punteggio: ${score}/${answeredCount()}`; updateNavigationButtons();
+  updateScoreDisplay(); renderQuestionRail(); updateNavigationButtons();
   if(correct&&shouldAutoNext()) autoNextTimer=setTimeout(()=>{autoNextTimer=null;nextQuestion();},650);
 }
 function deselectAnswer(){
@@ -521,7 +579,6 @@ function deselectAnswer(){
 function previousQuestion(){ clearAutoNextTimer(); hideCompletionScreen(); if(current>0){current--;renderQuestion();} }
 function nextQuestion(){
   clearAutoNextTimer();
-  if(!answered){alert('Seleziona una risposta prima di continuare.');return;}
   if(current<pool.length-1){current++;renderQuestion();}else showCompletionScreen();
 }
 function showCompletionScreen(){
@@ -659,7 +716,7 @@ window.addEventListener('offline',updateConnectionStatus);
 
 
 /* Aggiornamento obbligatorio: rilevamento continuo, interfaccia solo nella home */
-const APP_VERSION='2026.06.29.1945';
+const APP_VERSION='2026.06.29.2110';
 let mandatoryUpdateRegistration=null;
 let mandatoryWaitingWorker=null;
 let mandatoryRemoteVersion='';

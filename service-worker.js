@@ -1,5 +1,5 @@
-const CACHE_NAME = 'storia-2026-pwa-v108-home-ok';
-const APP_VERSION = '2026.06.29.1945';
+const CACHE_NAME = 'storia-2026-pwa-v109-question-rail';
+const APP_VERSION = '2026.06.29.2110';
 const APP_SHELL = [
   './',
   './index.html',
