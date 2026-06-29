@@ -1,4 +1,4 @@
-const CACHE_NAME = 'storia-2026-pwa-v20';
+const CACHE_NAME = 'storia-2026-pwa-v100';
 const APP_SHELL = [
   './',
   './index.html',

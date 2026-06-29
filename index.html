@@ -71,15 +71,9 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 @media (hover:hover) and (pointer:fine){.answer:hover{border-color:#f59e0b;background:#1f1a10}}
 @media (hover:none),(pointer:coarse){.answer:hover{border-color:var(--border);background:#0b1220}.answer:focus{outline:none}}
 
-/* Centra verticalmente la scheda del quiz sui display desktop. */
-@media (min-width: 781px) and (min-height: 650px){
-  body.quiz-active .container{min-height:100vh;display:flex;flex-direction:column;justify-content:center;}
-  body.quiz-active #quiz{width:100%;margin:0 auto;}
-}
 
-
-.resume-quiz-btn{display:none;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#eff6ff;border:1px solid rgba(147,197,253,.55);box-shadow:0 10px 28px rgba(37,99,235,.24)}
-.resume-quiz-btn.show{display:inline-flex}.resume-quiz-btn:hover{filter:brightness(1.06)}
+.resume-quiz-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#eff6ff;border:1px solid rgba(147,197,253,.55);box-shadow:0 10px 28px rgba(37,99,235,.24)}
+.resume-quiz-btn.show{display:inline-flex}.resume-quiz-btn:hover:not(:disabled){filter:brightness(1.06)}.resume-quiz-btn:disabled{opacity:.52;cursor:not-allowed;background:linear-gradient(135deg,#334155,#1e293b);border-color:#475569;box-shadow:none;color:#cbd5e1;transform:none}
 .pause-quiz-btn{background:linear-gradient(135deg,#334155,#1e293b)!important;color:#f8fafc!important;border:1px solid #64748b!important}
 .pause-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 34%,rgba(14,165,233,.18),rgba(2,6,23,.92) 48%,rgba(2,6,23,.98));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .pause-panel{width:min(560px,100%);border:1px solid rgba(125,211,252,.38);border-radius:28px;background:linear-gradient(165deg,rgba(30,41,59,.98),rgba(15,23,42,.99));box-shadow:0 32px 100px rgba(0,0,0,.62);padding:30px;text-align:center;animation:pausePop .2s ease-out}
@@ -91,6 +85,12 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 .resume-note{display:none;width:100%;margin-top:10px;padding:10px 13px;border-radius:13px;background:rgba(14,165,233,.1);border:1px solid rgba(56,189,248,.24);color:#bae6fd;font-size:.88rem}.resume-note.show{display:block}
 @media(max-width:620px){.pause-panel{padding:24px 18px;border-radius:23px}.pause-actions{grid-template-columns:1fr}.pause-preview{grid-template-columns:1fr 1fr}.pause-preview div:last-child{grid-column:1/-1}.resume-quiz-btn.show{display:flex;width:100%}}
 
+
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.italy-flag{width:42px;height:28px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 5px 16px rgba(0,0,0,.28);display:grid;grid-template-columns:repeat(3,1fr);flex:0 0 auto}
+.italy-flag span:nth-child(1){background:#009246}.italy-flag span:nth-child(2){background:#fff}.italy-flag span:nth-child(3){background:#ce2b37}
+@media(max-width:780px){.header-right{margin-top:12px;justify-content:flex-start}.italy-flag{width:38px;height:25px}}
+
 </style>
 </head>
 <body onload="init()">
@@ -100,7 +100,7 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
     <h1>Simulatore date<br>Storia 2026</h1>
     <p class="subtitle">Quiz interattivo con risposte mescolate: non sono sempre in posizione A.</p>
   </div>
-  <div class="badge"><span id="totalCount">0</span> domande data</div>
+  <div class="header-right"><div class="italy-flag" aria-label="Bandiera italiana" title="Italia"><span></span><span></span><span></span></div><div class="badge"><span id="totalCount">0</span> domande data</div></div>
 </header>
 <div id="installHint" class="install-hint" role="status">
   <button class="install-close" type="button" aria-label="Chiudi istruzioni" onclick="dismissInstallHint()">×</button>
@@ -191,7 +191,7 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
     <div id="blockSummary" class="block-summary"></div>
   </div>
 
-  <div class="buttons"><button onclick="startQuiz()">Avvia simulazione</button><button id="resumeQuizBtn" class="resume-quiz-btn" type="button" onclick="resumeIncompleteQuiz()">↻ Riprendi quiz incompleto</button><button class="secondary" onclick="document.getElementById('archiveCard').scrollIntoView({behavior:'smooth'})">Vedi elenco domande</button><div id="resumeQuizNote" class="resume-note"></div></div>
+  <div class="buttons"><button onclick="startQuiz()">Avvia simulazione</button><button id="resumeQuizBtn" class="resume-quiz-btn" type="button" onclick="resumeIncompleteQuiz()">↻ Riprendi quiz sospeso</button><button class="secondary" onclick="document.getElementById('archiveCard').scrollIntoView({behavior:'smooth'})">Vedi elenco domande</button><div id="resumeQuizNote" class="resume-note"></div></div>
 </section>
 <section id="quiz" class="card hide">
   <div id="reviewModeBanner" class="review-mode-banner">Modalità ripasso errori: stai vedendo solo le domande sbagliate nel quiz appena concluso.</div>
@@ -299,8 +299,13 @@ function clearIncompleteQuiz(){ try{ localStorage.removeItem(INCOMPLETE_QUIZ_KEY
 function updateResumeButton(){
   const saved=getIncompleteQuiz(), btn=$('resumeQuizBtn'), note=$('resumeQuizNote');
   if(!btn) return;
-  btn.classList.toggle('show',!!saved);
-  if(note){ note.classList.toggle('show',!!saved); note.textContent=saved?`Simulazione sospesa: ${saved.answeredCount||0}/${saved.poolNums.length} risposte · salvata ${formatSessionDate(saved.savedAt)}`:''; }
+  btn.classList.add('show');
+  btn.disabled=!saved;
+  btn.textContent=saved?'↻ Riprendi quiz sospeso':'↻ Nessun quiz sospeso';
+  if(note){
+    note.classList.toggle('show',!!saved);
+    note.textContent=saved?`Quiz sospeso: ${saved.answeredCount||0}/${saved.poolNums.length} risposte · salvato ${formatSessionDate(saved.savedAt)}`:'';
+  }
 }
 function serializeHistoryItem(item){ if(!item) return null; return {qNum:item.q.num,selected:item.selected,selectedIndex:item.selectedIndex,correctChoice:item.correctChoice,isCorrect:item.isCorrect,statBefore:item.statBefore}; }
 function serializeIncompleteQuiz(){
