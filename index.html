@@ -91,11 +91,6 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 .italy-flag span:nth-child(1){background:#009246}.italy-flag span:nth-child(2){background:#fff}.italy-flag span:nth-child(3){background:#ce2b37}
 @media(max-width:780px){.header-right{margin-top:12px;justify-content:flex-start}.italy-flag{width:38px;height:25px}}
 
-
-.update-toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,140%);z-index:9998;width:min(92vw,520px);padding:15px 16px;border:1px solid rgba(245,158,11,.55);border-radius:18px;background:rgba(15,23,42,.98);box-shadow:0 24px 70px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;opacity:0;pointer-events:none;transition:transform .28s ease,opacity .28s ease}.update-toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}.update-toast-icon{width:42px;height:42px;border-radius:13px;background:rgba(245,158,11,.16);display:grid;place-items:center;font-size:1.25rem;flex:0 0 42px}.update-toast-copy{min-width:0;flex:1}.update-toast-copy strong{display:block;color:#fff;font-size:1rem}.update-toast-copy span{display:block;color:#cbd5e1;font-size:.86rem;line-height:1.35;margin-top:2px}.update-toast-actions{display:flex;gap:8px}.update-toast-actions button{padding:9px 12px;border-radius:11px;font-size:.88rem;white-space:nowrap}.update-dismiss{background:#243244!important;color:#e2e8f0!important;border:1px solid var(--border)!important}.update-now{background:var(--accent)!important;color:#451a03!important}
-.update-overlay{position:fixed;inset:0;z-index:9999;display:none;place-items:center;padding:20px;background:rgba(2,6,23,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.update-overlay.show{display:grid}.update-card{width:min(92vw,520px);border:1px solid rgba(245,158,11,.55);border-radius:24px;background:linear-gradient(180deg,#172033,#0b1220);box-shadow:0 30px 100px rgba(0,0,0,.6);padding:26px;text-align:center}.update-card-icon{width:72px;height:72px;border-radius:22px;background:rgba(245,158,11,.16);display:grid;place-items:center;margin:0 auto 16px;font-size:2rem}.update-card h2{margin:0 0 8px}.update-card p{margin:0;color:#cbd5e1;line-height:1.5}.update-card .buttons{justify-content:center;margin-top:20px}.update-progress{display:none;margin-top:18px;color:#fde68a;font-weight:800}.update-progress.show{display:block}
-@media(max-width:620px){.update-toast{align-items:flex-start}.update-toast-actions{flex-direction:column}.update-toast-actions button{width:100%}}
-
 </style>
 </head>
 <body onload="init()">
@@ -326,8 +321,6 @@ function requestPauseQuiz(){
 }
 function hidePauseOverlay(){ $('pauseOverlay')?.classList.add('hide'); }
 function confirmPauseQuiz(){
-  hideUpdateUI();
-  updateNoticeDeferred=!!(waitingServiceWorker||appRegistration?.waiting||updateNoticeDeferred);
   saveIncompleteQuiz(serializeIncompleteQuiz());
   hidePauseOverlay();
   clearAutoNextTimer();
@@ -337,7 +330,6 @@ function confirmPauseQuiz(){
   renderPreparationCard(); showArchive(); updateResumeButton(); window.scrollTo({top:0,behavior:'smooth'});
 }
 function resumeIncompleteQuiz(){
-  hideUpdateUI();
   const saved=getIncompleteQuiz();
   if(!saved){ updateResumeButton(); alert('Non c’è nessuna simulazione incompleta da riprendere.'); return; }
   const map=new Map(DATA.map(q=>[String(q.num),q]));
@@ -438,7 +430,7 @@ function getLevelPill(level){ if(level==='risposte') return ''; const label=PREP
 
 function applyBaseFilters(arr){ let out=[...arr]; if($('blockEnabled').checked){ normalizeBlockRange(); const start=clampBlockValue($('blockStart').value); const end=clampBlockValue($('blockEnd').value); out=out.slice(start-1,end); } const type=$('typeFilter').value; const term=$('keyword').value.trim().toLowerCase(); if(type !== 'all') out=out.filter(q=>(q.type||'Altro')===type); if(term) out=out.filter(q=>(q.question+' '+q.answers.join(' ')+' '+q.num+' '+(q.type||'')).toLowerCase().includes(term)); return out; }
 function makePool(){ let arr=applyBaseFilters(DATA); const selectedLevels=getSelectedPreparationLevels(); if(selectedLevels) arr=arr.filter(q=>selectedLevels.includes(classifyQuestion(q))); return shuffle(arr); }
-function startQuiz(){ hideUpdateUI(); setQuizChromeVisible(false); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); currentSessionId=createSessionId(); currentSessionSaved=false; isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; errorReviewLastCorrectPositions={}; updateErrorReviewUI(); pool=makePool(); if(pool.length===0){ setQuizChromeVisible(true); $('archiveCard')?.classList.remove('hide'); alert('Nessuna domanda trovata con questi filtri. Controlla anche il livello di preparazione selezionato.');return;} clearIncompleteQuiz(); current=0; score=0; mistakes=[]; history=[]; choiceOrders=[]; selected=null; answered=false; mode=$('mode').value; $('setup').classList.add('hide'); $('quiz').classList.remove('hide'); $('results').classList.add('hide'); renderQuestion(); }
+function startQuiz(){ setQuizChromeVisible(false); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); currentSessionId=createSessionId(); currentSessionSaved=false; isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; errorReviewLastCorrectPositions={}; updateErrorReviewUI(); pool=makePool(); if(pool.length===0){ setQuizChromeVisible(true); $('archiveCard')?.classList.remove('hide'); alert('Nessuna domanda trovata con questi filtri. Controlla anche il livello di preparazione selezionato.');return;} clearIncompleteQuiz(); current=0; score=0; mistakes=[]; history=[]; choiceOrders=[]; selected=null; answered=false; mode=$('mode').value; $('setup').classList.add('hide'); $('quiz').classList.remove('hide'); $('results').classList.add('hide'); renderQuestion(); }
 function answeredCount(){ return history.filter(Boolean).length; }
 function recalculateSession(){ const answeredHistory=history.filter(Boolean); score=answeredHistory.filter(h=>h.isCorrect).length; mistakes=answeredHistory.filter(h=>!h.isCorrect).map(h=>({q:h.q,selected:h.selected,correctChoice:h.correctChoice})); }
 function renderQuestion(){
@@ -543,7 +535,7 @@ function finishQuiz(forceFinish=false){
   showResults();
   if(quizErrorQuestions.length>0) showErrorReviewOffer();
 }
-function showResults(){ clearIncompleteQuiz(); setQuizChromeVisible(true); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); hideCompletionScreen(); saveCompletedSession(); $('quiz').classList.add('hide'); $('results').classList.remove('hide'); const unanswered=Math.max(0,pool.length-answeredCount()); const pct=Math.round((score/pool.length)*100); $('finalScore').textContent=`${score}/${pool.length}`; $('finalPct').textContent=`${pct}%`; $('mistakeCount').textContent=mistakes.length; let msg = pct>=90 ? 'Fortissimo: le date stanno entrando bene.' : pct>=75 ? 'Buono: ripassa gli errori e sei messo bene.' : pct>=60 ? 'Discreto: devi fissare meglio anni e periodi.' : 'Da ripassare: rifai soprattutto gli errori e cerca le parole chiave storiche.'; $('finalMsg').textContent=unanswered>0 ? `${msg} Hai terminato con ${unanswered} ${unanswered===1?'domanda non risposta':'domande non risposte'}.` : msg; const box=$('review'); if(mistakes.length===0){box.innerHTML='<div class="resultBox ok">Nessun errore. Perfetto.</div>';} else box.innerHTML=mistakes.map(m=>`<div class="reviewItem"><b>Domanda ${m.q.num} · ${escapeHtml(m.q.type||'')}</b> ${getLevelPill(classifyQuestion(m.q))}<p>${escapeHtml(m.q.question)}</p><p>Hai scelto: <span style="color:#fecaca">${escapeHtml(m.selected.txt)}</span></p><p>Corretta: <span style="color:#bbf7d0">${escapeHtml(m.correctChoice.txt)}</span></p></div>`).join(''); showArchive(); setTimeout(showDeferredUpdateAfterQuiz,250); }
+function showResults(){ clearIncompleteQuiz(); setQuizChromeVisible(true); $('archiveCard')?.classList.add('hide'); clearAutoNextTimer(); hideCompletionScreen(); saveCompletedSession(); $('quiz').classList.add('hide'); $('results').classList.remove('hide'); const unanswered=Math.max(0,pool.length-answeredCount()); const pct=Math.round((score/pool.length)*100); $('finalScore').textContent=`${score}/${pool.length}`; $('finalPct').textContent=`${pct}%`; $('mistakeCount').textContent=mistakes.length; let msg = pct>=90 ? 'Fortissimo: le date stanno entrando bene.' : pct>=75 ? 'Buono: ripassa gli errori e sei messo bene.' : pct>=60 ? 'Discreto: devi fissare meglio anni e periodi.' : 'Da ripassare: rifai soprattutto gli errori e cerca le parole chiave storiche.'; $('finalMsg').textContent=unanswered>0 ? `${msg} Hai terminato con ${unanswered} ${unanswered===1?'domanda non risposta':'domande non risposte'}.` : msg; const box=$('review'); if(mistakes.length===0){box.innerHTML='<div class="resultBox ok">Nessun errore. Perfetto.</div>';} else box.innerHTML=mistakes.map(m=>`<div class="reviewItem"><b>Domanda ${m.q.num} · ${escapeHtml(m.q.type||'')}</b> ${getLevelPill(classifyQuestion(m.q))}<p>${escapeHtml(m.q.question)}</p><p>Hai scelto: <span style="color:#fecaca">${escapeHtml(m.selected.txt)}</span></p><p>Corretta: <span style="color:#bbf7d0">${escapeHtml(m.correctChoice.txt)}</span></p></div>`).join(''); showArchive(); }
 function showErrorReviewOffer(){
   $('errorReviewTitle').textContent='Vuoi ripassare solo gli errori?';
   $('errorReviewCount').textContent=quizErrorQuestions.length;
@@ -590,7 +582,7 @@ function updateErrorReviewUI(){
 }
 function retryMistakes(){ clearAutoNextTimer(); hideCompletionScreen(); if(quizErrorQuestions.length===0) quizErrorQuestions=uniqueQuestionsByNum(mistakes.map(m=>m.q)); if(quizErrorQuestions.length===0){alert('Non hai errori da rifare.');return;} startErrorReview(); }
 function exportMistakes(){ const rows=[['numero','tipo','domanda','tua_risposta','risposta_corretta']]; mistakes.forEach(m=>rows.push([m.q.num,m.q.type||'',m.q.question,m.selected.txt,m.correctChoice.txt])); const csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='errori_date_storia_2026.csv'; a.click(); URL.revokeObjectURL(url); }
-function resetAll(){ hidePauseOverlay(); setQuizChromeVisible(true); $('archiveCard')?.classList.remove('hide'); clearAutoNextTimer(); hideCompletionScreen(); closeErrorReviewOverlay(); isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; $('setup').classList.remove('hide'); $('quiz').classList.add('hide'); $('results').classList.add('hide'); updateErrorReviewUI(); renderPreparationCard(); showArchive(); setTimeout(showDeferredUpdateAfterQuiz,250); }
+function resetAll(){ hidePauseOverlay(); setQuizChromeVisible(true); $('archiveCard')?.classList.remove('hide'); clearAutoNextTimer(); hideCompletionScreen(); closeErrorReviewOverlay(); isErrorReview=false; errorReviewRound=0; quizErrorQuestions=[]; $('setup').classList.remove('hide'); $('quiz').classList.add('hide'); $('results').classList.add('hide'); updateErrorReviewUI(); renderPreparationCard(); showArchive(); }
 function showArchive(){ const term=($('archiveSearch')?.value||'').trim().toLowerCase(); let arr=[...DATA]; if(term) arr=arr.filter(q=>(q.question+' '+q.answers.join(' ')+' '+q.num+' '+(q.type||'')).toLowerCase().includes(term)); $('archiveCount').textContent=`${arr.length} domande visualizzate`; $('archive').innerHTML=arr.map(q=>{ const level=classifyQuestion(q); return `<div class="reviewItem"><b>n. ${q.num} · ${escapeHtml(q.type||'Data')}</b> ${getLevelPill(level)}<p>${escapeHtml(q.question)}</p><details><summary>Mostra risposta corretta</summary><p style="color:#bbf7d0"><b>${escapeHtml(q.answers[q.correct])}</b></p></details></div>`; }).join(''); }
 
 function applyAutoNextDefault(){
@@ -638,149 +630,7 @@ function updateConnectionStatus(){ const online=navigator.onLine; document.body.
 function postInitExtras(){ initInstallHint(); updateConnectionStatus(); }
 window.addEventListener('online',updateConnectionStatus);
 window.addEventListener('offline',updateConnectionStatus);
-
-
-let appRegistration=null;
-let waitingServiceWorker=null;
-let refreshingForUpdate=false;
-let updateNoticeDeferred=false;
-const APP_VERSION='2026.06.29.1700';
-const APP_VERSION_STORAGE_KEY='storia2026-installed-app-version';
-let remoteVersionAvailable=null;
-function isQuizCurrentlyOpen(){ return !!$('quiz') && !$('quiz').classList.contains('hide'); }
-function hasUnfinishedQuiz(){ try{return !!getIncompleteQuiz();}catch(_e){return false;} }
-function canShowUpdateNotice(){ return !isQuizCurrentlyOpen(); }
-function hideUpdateUI(){ $('updateToast')?.classList.remove('show'); $('updateOverlay')?.classList.remove('show'); }
-function showUpdateNotice(worker){
-  waitingServiceWorker=worker||appRegistration?.waiting||waitingServiceWorker||null;
-  if(!waitingServiceWorker && !remoteVersionAvailable)return;
-  if(!canShowUpdateNotice()){
-    updateNoticeDeferred=true;
-    hideUpdateUI();
-    return;
-  }
-  updateNoticeDeferred=false;
-  $('updateToast')?.classList.add('show');
-}
-function showDeferredUpdateAfterQuiz(){
-  if((updateNoticeDeferred || waitingServiceWorker || appRegistration?.waiting) && canShowUpdateNotice()){
-    showUpdateNotice(waitingServiceWorker||appRegistration?.waiting);
-  }
-}
-function dismissUpdateNotice(){ $('updateToast')?.classList.remove('show'); }
-function openUpdateOverlay(){
-  if(!canShowUpdateNotice()){
-    updateNoticeDeferred=true;
-    hideUpdateUI();
-    return;
-  }
-  dismissUpdateNotice(); $('updateOverlay')?.classList.add('show');
-}
-function closeUpdateOverlay(){ $('updateOverlay')?.classList.remove('show'); }
-function persistProgressBeforeReload(){
-  try{
-    if(isQuizCurrentlyOpen() && typeof serializeIncompleteQuiz==='function' && typeof saveIncompleteQuiz==='function'){
-      saveIncompleteQuiz(serializeIncompleteQuiz());
-    }
-    if(typeof saveSettings==='function') saveSettings();
-    if(typeof saveQuestionStats==='function') saveQuestionStats();
-  }catch(_e){}
-}
-function applyAppUpdate(){
-  if(!canShowUpdateNotice()){
-    updateNoticeDeferred=true;
-    hideUpdateUI();
-    return;
-  }
-  persistProgressBeforeReload();
-  $('updateProgress')?.classList.add('show');
-  $('updateButtons')?.classList.add('hide');
-  const worker=waitingServiceWorker||appRegistration?.waiting;
-  if(worker){
-    worker.postMessage({type:'SKIP_WAITING'});
-    return;
-  }
-  if(appRegistration){
-    appRegistration.update().finally(()=>{
-      setTimeout(()=>location.reload(),900);
-    });
-  }else{
-    location.reload();
-  }
-}
-function checkRemoteAppVersion(){
-  if(!navigator.onLine)return Promise.resolve();
-  return fetch('./app-version.json?v='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}})
-    .then(r=>r.ok?r.json():null)
-    .then(data=>{
-      const remote=String(data?.version||'').trim();
-      if(!remote)return;
-      let installed='';
-      try{installed=localStorage.getItem(APP_VERSION_STORAGE_KEY)||APP_VERSION;}catch(_e){installed=APP_VERSION;}
-      if(remote!==installed){
-        remoteVersionAvailable=remote;
-        if(appRegistration) appRegistration.update().catch(()=>{});
-        showUpdateNotice(appRegistration?.waiting||waitingServiceWorker);
-      }else{
-        try{localStorage.setItem(APP_VERSION_STORAGE_KEY,remote);}catch(_e){}
-      }
-    }).catch(()=>{});
-}
-function watchServiceWorkerRegistration(reg){
-  appRegistration=reg;
-  if(reg.waiting && navigator.serviceWorker.controller) showUpdateNotice(reg.waiting);
-  reg.addEventListener('updatefound',()=>{
-    const worker=reg.installing;
-    if(!worker)return;
-    worker.addEventListener('statechange',()=>{
-      if(worker.state==='installed' && navigator.serviceWorker.controller) showUpdateNotice(worker);
-    });
-  });
-}
-function checkForAppUpdate(){ if(appRegistration && navigator.onLine) appRegistration.update().catch(()=>{}); }
-if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(reg=>{
-    watchServiceWorkerRegistration(reg);
-    checkRemoteAppVersion();
-    setTimeout(checkForAppUpdate,1200);
-  }).catch(()=>{checkRemoteAppVersion();}));
-  navigator.serviceWorker.addEventListener('message',event=>{
-    if(event.data?.type==='UPDATE_READY'){
-      remoteVersionAvailable=event.data.version||remoteVersionAvailable||'new';
-      if(appRegistration) appRegistration.update().catch(()=>{});
-      showUpdateNotice(appRegistration?.waiting||waitingServiceWorker);
-    }
-  });
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(refreshingForUpdate)return;
-    persistProgressBeforeReload();
-    if(remoteVersionAvailable){try{localStorage.setItem(APP_VERSION_STORAGE_KEY,remoteVersionAvailable);}catch(_e){}}
-    refreshingForUpdate=true;
-    location.reload();
-  });
-  window.addEventListener('online',()=>{setTimeout(checkForAppUpdate,500);setTimeout(checkRemoteAppVersion,700);});
-  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){setTimeout(checkForAppUpdate,350);setTimeout(checkRemoteAppVersion,600);} });
-  window.addEventListener('pageshow',()=>setTimeout(checkRemoteAppVersion,450));
-  setInterval(checkForAppUpdate,5*60*1000);
-  setInterval(checkRemoteAppVersion,3*60*1000);
-}
-
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost' || location.hostname==='127.0.0.1')){ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
 </script>
-
-<div id="updateToast" class="update-toast" role="status" aria-live="polite">
-  <div class="update-toast-icon">↻</div>
-  <div class="update-toast-copy"><strong>Nuovo aggiornamento disponibile</strong><span>È pronta una nuova versione del simulatore.</span></div>
-  <div class="update-toast-actions"><button type="button" class="update-dismiss" onclick="dismissUpdateNotice()">Dopo</button><button type="button" class="update-now" onclick="openUpdateOverlay()">Aggiorna ora</button></div>
-</div>
-<div id="updateOverlay" class="update-overlay" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
-  <div class="update-card">
-    <div class="update-card-icon">↻</div>
-    <h2 id="updateTitle">Aggiornamento disponibile</h2>
-    <p>La nuova versione verrà installata e l’app si riaprirà automaticamente. I quiz, la cronologia e le statistiche salvate non verranno cancellati.</p>
-    <div id="updateProgress" class="update-progress">Aggiornamento in corso…</div>
-    <div id="updateButtons" class="buttons"><button type="button" class="update-now" onclick="applyAppUpdate()">Aggiorna ora</button><button type="button" class="secondary" onclick="closeUpdateOverlay()">Più tardi</button></div>
-  </div>
-</div>
-
 </body>
 </html>

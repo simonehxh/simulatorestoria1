@@ -1,9 +1,8 @@
-const CACHE_NAME = 'storia-2026-pwa-v103';
+const CACHE_NAME = 'storia-2026-pwa-v106-clean';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './app-version.json',
   './icons/icon-32.png',
   './icons/icon-180.png',
   './icons/icon-192.png',
@@ -11,12 +10,7 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.clients.matchAll({type:'window',includeUncontrolled:true}))
-      .then(clients => clients.forEach(client => client.postMessage({type:'UPDATE_READY',version:'2026.06.29.1700'})))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
@@ -28,10 +22,6 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  if (new URL(event.request.url).pathname.endsWith('/app-version.json')) {
-    event.respondWith(fetch(event.request,{cache:'no-store'}).catch(() => caches.match(event.request)));
-    return;
-  }
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).then(response => {
       const copy = response.clone();
@@ -47,8 +37,4 @@ self.addEventListener('fetch', event => {
     }
     return response;
   })));
-});
-
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
