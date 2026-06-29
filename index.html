@@ -71,8 +71,8 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
 @media (hover:hover) and (pointer:fine){.answer:hover{border-color:#f59e0b;background:#1f1a10}}
 @media (hover:none),(pointer:coarse){.answer:hover{border-color:var(--border);background:#0b1220}.answer:focus{outline:none}}
 
-.header-actions{display:flex;align-items:center;gap:10px}.italy-flag{width:36px;height:24px;border-radius:4px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 4px 12px rgba(0,0,0,.24);flex:0 0 auto}.italy-flag span:nth-child(1){background:#009246}.italy-flag span:nth-child(2){background:#fff}.italy-flag span:nth-child(3){background:#ce2b37}
-@media(max-width:780px){#appHeader{position:relative;padding-right:52px}.header-actions{display:block}.italy-flag{position:absolute;top:0;right:0;width:32px;height:21px}.header-actions .badge{margin-top:12px}}
+.header-actions{display:flex;align-items:center;gap:10px}.flag-slogan-wrap{display:flex;align-items:center;gap:9px;justify-content:flex-end}.italy-flag{width:36px;height:24px;border-radius:4px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 4px 12px rgba(0,0,0,.24);flex:0 0 auto}.italy-flag span:nth-child(1){background:#009246}.italy-flag span:nth-child(2){background:#fff}.italy-flag span:nth-child(3){background:#ce2b37}.flag-slogan{font-size:.88rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#f8fafc;white-space:nowrap}
+@media(max-width:780px){#appHeader{position:relative;padding-right:52px}.header-actions{display:block}.flag-slogan-wrap{position:absolute;top:0;right:0;gap:7px}.italy-flag{width:32px;height:21px}.flag-slogan{font-size:.72rem}.header-actions .badge{margin-top:38px}}
 
 </style>
 </head>
@@ -84,7 +84,10 @@ body.is-offline .offline-dot{background:var(--bad);box-shadow:0 0 0 3px rgba(239
     <p class="subtitle">Quiz interattivo con risposte mescolate: non sono sempre in posizione A.</p>
   </div>
   <div class="header-actions">
-    <div class="italy-flag" role="img" aria-label="Bandiera italiana"><span></span><span></span><span></span></div>
+    <div class="flag-slogan-wrap">
+      <div class="italy-flag" role="img" aria-label="Bandiera italiana"><span></span><span></span><span></span></div>
+      <div class="flag-slogan">Boia chi molla</div>
+    </div>
     <div class="badge"><span id="totalCount">0</span> domande data</div>
   </div>
 </header>
